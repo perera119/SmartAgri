@@ -9,7 +9,8 @@ import {
   Activity, 
   Calendar,
   AlertTriangle,
-  X
+  X,
+  Globe
 } from "lucide-react";
 
 // Components
@@ -24,6 +25,9 @@ import Monitoring from "./pages/Monitoring";
 import SettingsPage from "./pages/Settings";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import FarmRegistry from "./pages/FarmRegistry";
+import Profile from "./pages/Profile";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const API_BASE = "http://127.0.0.1:5001";
 
@@ -51,6 +55,11 @@ function App() {
     setUser(null);
     setIsLoggedIn(false);
   };
+
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser);
+  };
+  const [farmVisitCount, setFarmVisitCount] = useState(0);
   const [dashboardData, setDashboardData] = useState(null);
   const [predictionData, setPredictionData] = useState(null);
   const [alertsData, setAlertsData] = useState([]);
@@ -59,11 +68,14 @@ function App() {
   const [error, setError] = useState("");
 
   const menuItems = [
-    { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { key: "predictions", label: "Predictions", icon: BrainCircuit },
-    { key: "alerts", label: "Alerts", icon: Bell },
-    { key: "monitoring", label: "Monitoring", icon: Activity },
-    { key: "settings", label: "Settings", icon: Settings },
+    { key: "dashboard",  label: "Dashboard",   icon: LayoutDashboard },
+    { key: "predictions",label: "Predictions", icon: BrainCircuit    },
+    { key: "alerts",     label: "Alerts",      icon: Bell            },
+    { key: "monitoring", label: "Monitoring",  icon: Activity        },
+    { key: "farms",      label: "SL Farm Map", icon: Globe           },
+    ...(user?.role === "Admin"
+      ? [{ key: "admin", label: "Admin", icon: Settings }]
+      : []),
   ];
 
   const fetchData = async () => {
@@ -85,6 +97,25 @@ function App() {
       setError("Unable to sync with farm sensors. Reconnecting...");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSimulate = async () => {
+    try {
+      const simulatedData = {
+        fieldId: "north-field",
+        temperature: Math.floor(Math.random() * (40 - 20 + 1) + 20),
+        humidity: Math.floor(Math.random() * (90 - 40 + 1) + 40),
+        soilMoisture: Math.floor(Math.random() * (80 - 10 + 1) + 10),
+        rainfall: Math.floor(Math.random() * (50 - 0 + 1) + 0)
+      };
+
+      await axios.post(`${API_BASE}/api/sensors`, simulatedData);
+      await fetchData(); // Refresh UI immediately
+      return true;
+    } catch (err) {
+      console.error("Simulation failed:", err);
+      return false;
     }
   };
 
@@ -138,7 +169,10 @@ function App() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
       <Navbar 
         activePage={activePage} 
-        setActivePage={setActivePage} 
+        setActivePage={(page) => {
+          if (page === "farms") setFarmVisitCount(c => c + 1);
+          setActivePage(page);
+        }}
         menuItems={menuItems} 
         setIsLoggedIn={handleLogout} 
         user={user}
@@ -172,11 +206,20 @@ function App() {
               animate="animate"
               exit="exit"
             >
-              {activePage === "dashboard" && <Dashboard data={dashboardData} history={historyData} />}
-              {activePage === "predictions" && <Predictions data={predictionData} />}
+              {activePage === "dashboard" && (
+                <Dashboard 
+                  data={dashboardData} 
+                  history={historyData} 
+                  onSimulate={handleSimulate} 
+                />
+              )}
+              {activePage === "predictions" && <Predictions />}
               {activePage === "alerts" && <Alerts data={alertsData} />}
               {activePage === "monitoring" && <Monitoring />}
+              {activePage === "farms" && <FarmRegistry key={farmVisitCount} />}
               {activePage === "settings" && <SettingsPage />}
+              {activePage === "profile" && <Profile user={user} onUserUpdate={handleUserUpdate} />}
+              {activePage === "admin" && user?.role === "Admin" && <AdminDashboard currentUser={user} />}
             </motion.div>
           </AnimatePresence>
         </div>

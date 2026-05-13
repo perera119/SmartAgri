@@ -1,6 +1,7 @@
 const SensorData = require('../models/SensorData');
 const Alert = require('../models/Alert');
 const { generatePrediction } = require('../utils/prediction');
+const { fetchSriLankaFarms } = require('../services/farmService');
 
 // @desc    Get dashboard data
 // @route   GET /api/dashboard
@@ -29,7 +30,7 @@ const getDashboard = async (req, res) => {
       });
     }
 
-    const prediction = generatePrediction(latest);
+    const prediction = await generatePrediction(latest);
     const farmStatus = latest.soilMoisture < 45 ? "Low soil moisture detected" : "All conditions normal";
 
     res.json({
@@ -113,7 +114,7 @@ const addSensorData = async (req, res) => {
       day
     });
 
-    const prediction = generatePrediction(sensorDoc);
+    const prediction = await generatePrediction(sensorDoc);
 
     if (prediction.droughtRisk >= 60) {
       await Alert.create({
@@ -174,7 +175,7 @@ const getPredictions = async (req, res) => {
         prediction: "Irrigation Needed"
       });
     }
-    res.json(generatePrediction(latest));
+    res.json(await generatePrediction(latest));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -188,11 +189,25 @@ const predict = async (req, res) => {
     if (!latest) {
       return res.json({ prediction: "Mock Prediction: Normal" });
     }
-    const result = generatePrediction(latest);
+    const result = await generatePrediction(latest);
     res.json({ prediction: result.prediction });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = { getDashboard, getAlerts, getHistory, addSensorData, seedData, getPredictions, predict };
+// @desc    Get publicly mapped farms in Sri Lanka
+// @route   GET /api/farms/sri-lanka
+const getSriLankaFarms = async (req, res) => {
+  try {
+    const result = await fetchSriLankaFarms();
+    res.json(result);
+  } catch (error) {
+    res.status(503).json({ 
+      success: false, 
+      message: error.message || "Farm location data is temporarily unavailable. Please try again later." 
+    });
+  }
+};
+
+module.exports = { getDashboard, getAlerts, getHistory, addSensorData, seedData, getPredictions, predict, getSriLankaFarms };

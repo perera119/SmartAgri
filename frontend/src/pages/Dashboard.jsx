@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   Thermometer, 
@@ -6,7 +7,8 @@ import {
   CloudRain, 
   Activity, 
   MapPin,
-  BrainCircuit
+  BrainCircuit,
+  Zap
 } from "lucide-react";
 import { 
   LineChart, 
@@ -21,7 +23,15 @@ import {
 } from "recharts";
 import { ChartCard, DataNode } from "../components/UIHelpers";
 
-export default function Dashboard({ data, history }) {
+export default function Dashboard({ data, history, onSimulate }) {
+  const [isSimulating, setIsSimulating] = useState(false);
+
+  const handleSimulateClick = async () => {
+    setIsSimulating(true);
+    await onSimulate();
+    setTimeout(() => setIsSimulating(false), 1000);
+  };
+
   const metrics = [
     { title: "Temperature", value: data?.metrics?.temperature, unit: "°C", icon: Thermometer, color: "orange", trend: "+2.1%" },
     { title: "Humidity", value: data?.metrics?.humidity, unit: "%", icon: Droplets, color: "blue", trend: "-1.2%" },
@@ -61,8 +71,17 @@ export default function Dashboard({ data, history }) {
               <p className="text-2xl text-emerald-50/70 font-medium leading-relaxed mb-10">
                 {data?.farmStatus || "Syncing sensor data from the field..."}
               </p>
-              <div className="flex gap-6">
-                <button className="bg-white text-emerald-900 px-8 py-4 rounded-2xl font-black shadow-xl hover:scale-105 transition-all">Optimize Irrigation</button>
+              <div className="flex flex-wrap gap-6">
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleSimulateClick}
+                  disabled={isSimulating}
+                  className="bg-white text-emerald-900 px-8 py-4 rounded-2xl font-black shadow-xl flex items-center gap-3 transition-all disabled:opacity-50"
+                >
+                  <Zap size={20} className={isSimulating ? "animate-pulse" : ""} />
+                  {isSimulating ? "SIMULATING..." : "SIMULATE SENSOR DATA"}
+                </motion.button>
                 <button className="bg-emerald-500/20 text-white border border-white/20 backdrop-blur-xl px-8 py-4 rounded-2xl font-black hover:bg-emerald-500/30 transition-all">Deep Diagnostics</button>
               </div>
             </div>

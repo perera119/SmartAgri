@@ -87,4 +87,39 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+// @desc    Update user profile
+// @route   PUT /api/profile
+// @access  Private (identified by email)
+const updateProfile = async (req, res) => {
+  const { email, firstName, lastName, newEmail, password } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Current email is required to identify user' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    if (firstName)  user.firstName = firstName;
+    if (lastName)   user.lastName  = lastName;
+    if (newEmail)   user.email     = newEmail;
+    if (password)   user.password  = password; // will be hashed by pre-save hook
+
+    await user.save();
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        email:     user.email,
+        firstName: user.firstName,
+        lastName:  user.lastName,
+        role:      user.role,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Update failed' });
+  }
+};
+
+module.exports = { registerUser, loginUser, updateProfile };
