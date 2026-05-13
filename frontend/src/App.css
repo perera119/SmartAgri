@@ -1,0 +1,16 @@
+/* App-specific styles */
+.recharts-default-tooltip {
+  @apply !bg-white/90 !backdrop-blur-md !border-none !shadow-2xl !rounded-2xl !p-4 !text-slate-800;
+}
+
+.recharts-tooltip-label {
+  @apply !font-bold !mb-1 !text-slate-900;
+}
+
+.nav-item-active {
+  @apply bg-white text-emerald-900 shadow-lg shadow-emerald-950/20;
+}
+
+.nav-item-hover {
+  @apply hover:bg-emerald-800/40;
+}

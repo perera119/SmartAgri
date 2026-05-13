@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+__MACOSX/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env
+frontend/.env.local
+
+# Backend
+backend/venv/
+backend/.venv/
+backend/__pycache__/
+backend/.pytest_cache/
+backend/.env
+*.pyc
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log

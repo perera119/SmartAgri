@@ -1,0 +1,21 @@
+* Host localhost:5000 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying [::1]:5000...
+* Connected to localhost (::1) port 5000
+> GET /api/dashboard HTTP/1.1
+> Host: localhost:5000
+> User-Agent: curl/8.7.1
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/1.1 403 Forbidden
+< Content-Length: 0
+< Server: AirTunes/870.14.1
+< X-Apple-ProcessingTime: 0
+< X-Apple-RequestReceivedTimestamp: 565223441
+< 
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+* Connection #0 to host localhost left intact
