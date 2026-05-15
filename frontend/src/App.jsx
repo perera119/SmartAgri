@@ -69,8 +69,10 @@ function App() {
   const menuItems = user?.role === "Admin"
     ? [
         { key: "admin",      label: "Admin Panel",    icon: Settings },
-        { key: "farms",      label: "Geospatial Map", icon: Globe },
-        { key: "dashboard",  label: "System Status",  icon: LayoutDashboard }
+        { key: "dashboard",  label: "Home",           icon: LayoutDashboard },
+        { key: "alerts",     label: "Alerts",         icon: Bell            },
+        { key: "monitoring", label: "Monitoring",     icon: Activity        },
+        { key: "farms",      label: "Geospatial Map", icon: Globe           }
       ]
     : [
         { key: "dashboard",  label: "Home",           icon: LayoutDashboard },

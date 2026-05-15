@@ -38,11 +38,16 @@ export default function SettingsPage() {
 
         <div className="space-y-12">
           <section>
-             <h4 className="text-emerald-600 font-black text-xs uppercase tracking-[0.4em] mb-8">Regional Interface</h4>
-             <div className="grid grid-cols-1 gap-4 mt-6">
-               <button className="w-full py-5 rounded-2xl font-black bg-slate-900 text-white shadow-xl shadow-slate-900/20">English (Global)</button>
-               <button className="w-full py-5 rounded-2xl font-black bg-slate-50 text-slate-400 hover:bg-slate-100 transition-all">Sinhala (LK-P1)</button>
-               <button className="w-full py-5 rounded-2xl font-black bg-slate-50 text-slate-400 hover:bg-slate-100 transition-all">Tamil (LK-P2)</button>
+             <h4 className="text-emerald-600 font-black text-xs uppercase tracking-[0.4em] mb-8">System Analytics</h4>
+             <div className="p-8 bg-slate-50 rounded-[32px] border border-slate-100">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Node Connectivity</p>
+                <div className="flex items-center gap-3">
+                   <div className="h-2 flex-1 bg-emerald-500 rounded-full"></div>
+                   <div className="h-2 flex-1 bg-emerald-500 rounded-full"></div>
+                   <div className="h-2 flex-1 bg-emerald-200 rounded-full"></div>
+                   <span className="text-xs font-black text-emerald-600">68%</span>
+                </div>
+                <p className="text-[10px] text-slate-400 font-bold mt-4 leading-relaxed">Regional sensor synchronization is currently operating at high-fidelity levels.</p>
              </div>
           </section>
 
