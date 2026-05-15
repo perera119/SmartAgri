@@ -136,7 +136,7 @@ export default function Alerts() {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [userFarms, setUserFarms] = useState([]);
   const [acknowledged, setAcknowledged] = useState([]);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("Active");
   const [currentUser, setCurrentUser] = useState(null);
   const [weatherSource, setWeatherSource] = useState("");
 
@@ -429,6 +429,7 @@ export default function Alerts() {
             onClick={() => {
               const allIds = alerts.map(a => a.id);
               setAcknowledged(prev => [...new Set([...prev, ...allIds])]);
+              setFilter("Active");
             }}
             className="px-6 py-2.5 bg-rose-50 text-rose-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-rose-100 hover:bg-rose-600 hover:text-white transition-all self-start sm:self-auto"
           >
