@@ -29,12 +29,9 @@ import FarmRegistry from "./pages/FarmRegistry";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 
-import { useLanguage } from "./context/LanguageContext";
-
 const API_BASE = "http://127.0.0.1:5001";
 
 function App() {
-  const { t } = useLanguage();
   const [activePage, setActivePage] = useState("dashboard");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
@@ -76,16 +73,16 @@ function App() {
   // Role-based Navigation
   const menuItems = user?.role === "Admin"
     ? [
-        { key: "admin",      label: t('settings'),    icon: Settings },
-        { key: "farms",      label: t('farmMap'),     icon: Globe },
-        { key: "dashboard",  label: t('dashboard'),   icon: LayoutDashboard }
+        { key: "admin",      label: "Admin Panel",    icon: Settings },
+        { key: "farms",      label: "Geospatial Map", icon: Globe },
+        { key: "dashboard",  label: "System Status",  icon: LayoutDashboard }
       ]
     : [
-        { key: "dashboard",  label: t('home'),         icon: LayoutDashboard },
-        { key: "predictions",label: t('predictions'),  icon: BrainCircuit    },
-        { key: "alerts",     label: t('alerts'),       icon: Bell            },
-        { key: "monitoring", label: t('monitoring'),   icon: Activity        },
-        { key: "farms",      label: t('farmMap'),      icon: Globe           },
+        { key: "dashboard",  label: "Home",           icon: LayoutDashboard },
+        { key: "predictions",label: "Predictions",    icon: BrainCircuit    },
+        { key: "alerts",     label: "Alerts",         icon: Bell            },
+        { key: "monitoring", label: "Monitoring",     icon: Activity        },
+        { key: "farms",      label: "Farm Map",       icon: Globe           },
       ];
 
   const fetchData = async () => {
