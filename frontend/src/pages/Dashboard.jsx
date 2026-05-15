@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Activity, Globe, ShieldCheck, ChevronRight, Zap } from 'lucide-react';
+import { ArrowRight, Activity, Globe, ShieldCheck, ChevronRight, Zap, BrainCircuit } from 'lucide-react';
 
 const Dashboard = ({ setActivePage, data }) => {
   return (
@@ -111,12 +111,17 @@ const Dashboard = ({ setActivePage, data }) => {
               
               <div className="space-y-6">
                 {[
-                  { icon: Zap, title: "Tactical Response Maps", desc: "Digital mitigation roadmaps for immediate field intervention." },
-                  { icon: Globe, title: "Live Geospatial Mapping", desc: "Monitor your entire farm registry with real-time meteorological overlays." },
-                  { icon: Activity, title: "Continuous Monitoring", desc: "Track crucial metrics 24/7 with automated alerts for critical thresholds." }
+                  { icon: BrainCircuit, title: "Hazard Forecasting", desc: "Predictive environmental intelligence powered by multi-spectral neural clusters.", action: "predictions" },
+                  { icon: Zap, title: "Tactical Response Maps", desc: "Digital mitigation roadmaps for immediate field intervention.", action: "alerts" },
+                  { icon: Globe, title: "Live Geospatial Mapping", desc: "Monitor your entire farm registry with real-time meteorological overlays.", action: "farms" },
+                  { icon: Activity, title: "Continuous Monitoring", desc: "Track crucial metrics 24/7 with automated alerts for critical thresholds.", action: "monitoring" }
                 ].map((feature, idx) => (
-                  <div key={idx} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
-                    <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                  <div 
+                    key={idx} 
+                    onClick={() => setActivePage(feature.action)}
+                    className="flex items-start gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 cursor-pointer group"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-all">
                       <feature.icon size={24} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -183,9 +188,10 @@ const Dashboard = ({ setActivePage, data }) => {
             <div>
               <h4 className="text-white font-bold mb-6 tracking-wide">Platform</h4>
               <ul className="space-y-4">
-                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Dashboard</a></li>
-                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Live Monitoring</a></li>
-                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Farm Map</a></li>
+                <li><button onClick={() => setActivePage("dashboard")} className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Dashboard</button></li>
+                <li><button onClick={() => setActivePage("monitoring")} className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Live Monitoring</button></li>
+                <li><button onClick={() => setActivePage("predictions")} className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Predictions</button></li>
+                <li><button onClick={() => setActivePage("farms")} className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Farm Map</button></li>
               </ul>
             </div>
 

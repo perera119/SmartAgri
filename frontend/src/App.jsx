@@ -8,7 +8,8 @@ import {
   Activity, 
   AlertTriangle,
   X,
-  Globe
+  Globe,
+  BrainCircuit
 } from "lucide-react";
 
 // Components

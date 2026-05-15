@@ -105,10 +105,42 @@ export default function Predictions() {
 
       {/* Main Forecast Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <PredictionCard title="Probable Temp" value="34.2" unit="°C" trend="High Intensity Heat" icon={Thermometer} color="bg-rose-50 text-rose-600" delay={0.1} />
-        <PredictionCard title="Projected Humidity" value="82" unit="%" trend="Heavy Saturation" icon={Droplets} color="bg-blue-50 text-blue-600" delay={0.2} />
-        <PredictionCard title="Wind Velocity" value="18" unit="km/h" trend="Steady Gusts" icon={Wind} color="bg-amber-50 text-amber-600" delay={0.3} />
-        <PredictionCard title="Disaster Probability" value="12" unit="%" trend="Minimal Flood Risk" icon={AlertTriangle} color="bg-emerald-50 text-emerald-600" delay={0.4} />
+        <PredictionCard 
+          title="Flood Risk" 
+          value={data?.floodRisk || 0} 
+          unit="%" 
+          trend={data?.floodRisk > 60 ? "Critical Risk" : "Stable Conditions"} 
+          icon={AlertTriangle} 
+          color="bg-rose-50 text-rose-600" 
+          delay={0.1} 
+        />
+        <PredictionCard 
+          title="Drought Risk" 
+          value={data?.droughtRisk || 0} 
+          unit="%" 
+          trend={data?.droughtRisk > 60 ? "Irrigation Required" : "Moisture Optimal"} 
+          icon={Thermometer} 
+          color="bg-amber-50 text-amber-600" 
+          delay={0.2} 
+        />
+        <PredictionCard 
+          title="Pest Outbreak" 
+          value={data?.pestRisk || 0} 
+          unit="%" 
+          trend={data?.pestRisk > 50 ? "Treatment Advised" : "Low Pressure"} 
+          icon={Sparkles} 
+          color="bg-blue-50 text-blue-600" 
+          delay={0.3} 
+        />
+        <PredictionCard 
+          title="System Confidence" 
+          value="94.2" 
+          unit="%" 
+          trend="Telemetry Verified" 
+          icon={Activity} 
+          color="bg-emerald-50 text-emerald-600" 
+          delay={0.4} 
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -126,21 +158,44 @@ export default function Predictions() {
               </div>
             </div>
 
-            {/* Simulated Chart Visualization */}
-            <div className="h-[300px] flex items-end gap-4 mb-8">
-              {[60, 80, 45, 90, 70, 30, 85, 55, 95, 40].map((h, i) => (
-                <div key={i} className="flex-1 group/bar relative">
-                  <motion.div 
-                    initial={{ height: 0 }}
-                    animate={{ height: `${h}%` }}
-                    transition={{ delay: i * 0.1, duration: 1 }}
-                    className={`rounded-2xl transition-all duration-500 w-full ${h > 70 ? 'bg-rose-500 shadow-lg shadow-rose-200' : 'bg-emerald-500/20 group-hover/bar:bg-emerald-500'}`}
-                  />
-                  <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity">
-                    <span className="text-[8px] font-black text-slate-400 uppercase">{i*4}h</span>
+            {/* Dynamic Chart Visualization */}
+            <div className="h-[300px] flex items-end gap-6 mb-12 px-4 bg-slate-50/50 rounded-[32px] p-8 border border-slate-100/50">
+              {(data?.forecasts || [40, 60, 35, 80, 50, 20, 75, 45, 90, 30]).map((item, i) => {
+                const height = typeof item === 'object' ? item.prob : item;
+                const type = typeof item === 'object' ? item.type : "Risk";
+                const isCritical = height > 60;
+                
+                return (
+                  <div key={i} className="flex-1 h-full flex flex-col justify-end group/bar relative">
+                    {/* Background Track */}
+                    <div className="absolute inset-0 bg-slate-100/50 rounded-2xl mb-1" />
+                    
+                    {/* Active Bar */}
+                    <motion.div 
+                      initial={{ height: 0 }}
+                      animate={{ height: `${Math.max(height, 5)}%` }}
+                      transition={{ delay: i * 0.05, duration: 1, ease: "easeOut" }}
+                      className={`relative z-10 rounded-2xl transition-all duration-500 w-full ${
+                        isCritical 
+                          ? 'bg-rose-500 shadow-[0_10px_20px_rgba(244,63,94,0.3)]' 
+                          : 'bg-emerald-500 shadow-[0_10px_20px_rgba(16,185,129,0.2)]'
+                      }`}
+                    >
+                       {/* Value Label on Hover */}
+                       <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap">
+                          {height}%
+                       </div>
+                    </motion.div>
+
+                    {/* X-Axis Label */}
+                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 transition-all group-hover/bar:translate-y-1">
+                      <span className="text-[8px] font-black text-slate-400 uppercase whitespace-nowrap tracking-tighter">
+                         {typeof item === 'object' ? item.type.split(' ')[0] : `${i*4}h`}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Aesthetic Glow */}
@@ -164,14 +219,14 @@ export default function Predictions() {
 
               <div className="space-y-6">
                 <p className="text-slate-400 font-medium leading-relaxed">
-                  Atmospheric stabilization detected over the Central Highlands. Minimal risk of localized flash flooding for the next 24 hours.
+                  {data?.recommendation || "Atmospheric stabilization detected over the Central Highlands. Minimal risk of localized flash flooding for the next 24 hours."}
                 </p>
                 
                 <div className="space-y-4">
                   {[
-                    { label: "Stability Index", value: "Optimal", color: "text-emerald-400" },
-                    { label: "Precipitation Prob.", value: "8.2%", color: "text-emerald-400" },
-                    { label: "Anomalies", value: "Zero Detected", color: "text-blue-400" }
+                    { label: "Overall Status", value: data?.overallStatus || "Optimal", color: "text-emerald-400" },
+                    { label: "Flood Risk", value: `${data?.floodRisk || 0}%`, color: data?.floodRisk > 60 ? "text-rose-400" : "text-emerald-400" },
+                    { label: "Drought Risk", value: `${data?.droughtRisk || 0}%`, color: data?.droughtRisk > 60 ? "text-amber-400" : "text-emerald-400" }
                   ].map(stat => (
                     <div key={stat.label} className="flex justify-between items-center py-4 border-b border-white/5">
                       <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{stat.label}</span>
