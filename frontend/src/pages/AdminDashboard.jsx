@@ -213,27 +213,8 @@ export default function AdminDashboard({ currentUser }) {
       {/* Cinematic Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 border-b border-slate-100 pb-10">
         <div>
-          <div className="flex items-center gap-3 mb-4">
-            <span className="bg-rose-600 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-200">Restricted</span>
-            <div className="h-px w-12 bg-slate-200"></div>
-            <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Level 4 Clearance</span>
-          </div>
           <h2 className="text-5xl md:text-7xl font-black text-slate-900 font-display tracking-tight leading-none mb-4">Command Center</h2>
           <p className="text-slate-500 font-medium max-w-2xl text-lg">Centralized regional oversight and administrative control for the Smart Agricultural Disaster Early Warning Network.</p>
-        </div>
-
-        <div className="flex flex-wrap gap-4">
-          <button
-            onClick={fetchAll}
-            className="flex items-center gap-3 bg-white border border-slate-200 text-slate-900 px-6 py-4 rounded-[24px] font-black text-xs uppercase tracking-widest hover:border-emerald-500 transition-all shadow-sm"
-          >
-            <RefreshCcw size={16} className={loading ? "animate-spin" : ""} />
-            Sync Grid
-          </button>
-          <div className="flex items-center gap-3 bg-slate-900 text-white px-6 py-4 rounded-[24px] font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200">
-            <ShieldCheck size={16} className="text-emerald-400" />
-            Authority: {currentUser?.firstName || "Admin"}
-          </div>
         </div>
       </div>
 
