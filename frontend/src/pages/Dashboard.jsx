@@ -7,52 +7,88 @@ const Dashboard = ({ setActivePage, data }) => {
   return (
     <div className="w-full min-h-screen bg-slate-50 flex flex-col font-sans">
       
-      {/* 🌟 HERO SECTION */}
+      {/* 🌪️ DISASTER COMMAND HERO */}
       <section 
-        className="relative pt-32 pb-48 px-6 lg:px-20 flex flex-col items-center justify-center text-center min-h-[85vh] md:min-h-[95vh] border-b border-slate-800"
+        className="relative pt-32 pb-40 px-6 lg:px-20 flex flex-col items-center justify-center text-center min-h-[90vh] border-b border-slate-800 overflow-hidden"
         style={{
-          backgroundImage: 'linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.95)), url("/hero.png")',
+          backgroundImage: 'linear-gradient(to bottom, rgba(2, 6, 23, 0.8), rgba(2, 6, 23, 0.98)), url("/hero.png")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
         }}
       >
-        {/* Background glow effects over the image */}
-        <div className="absolute inset-0 bg-slate-900/40 pointer-events-none"></div>
-        <div className="absolute top-[-10%] left-[20%] w-[600px] h-[600px] bg-emerald-500/20 rounded-full blur-[120px] -z-0 pointer-events-none mix-blend-screen"></div>
+        {/* Radar Pulse Effect */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-emerald-500/10 rounded-full animate-ping pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-emerald-500/20 rounded-full animate-pulse pointer-events-none"></div>
         
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="max-w-4xl mx-auto z-10"
+          transition={{ duration: 0.8 }}
+          className="max-w-5xl mx-auto z-10"
         >
-          <span className="inline-block py-1.5 px-4 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black tracking-widest uppercase mb-6">
-            The Future of Agriculture
-          </span>
-          <h1 className="text-6xl md:text-8xl font-black text-white tracking-tight leading-[1.05] mb-8 font-display">
-            Precision Intelligence for <span className="text-emerald-400 drop-shadow-lg">Smart Farming</span>
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <span className="flex h-3 w-3 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
+            <span className="bg-slate-800 text-emerald-400 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] border border-slate-700 shadow-2xl">
+              Live Regional Surveillance Active
+            </span>
+          </div>
+
+          <h1 className="text-6xl md:text-[100px] font-black text-white tracking-tighter leading-[0.9] mb-8 font-display">
+            Agricultural <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Early Warning</span> Hub
           </h1>
-          <p className="text-lg md:text-xl text-slate-200 max-w-2xl mx-auto font-medium mb-10 leading-relaxed drop-shadow-md">
-            Harness the power of AI, real-time meteorological data, and geospatial analytics to maximize crop yield, monitor field health, and prevent risks before they happen.
+          
+          <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto font-medium mb-12 leading-relaxed">
+            Protecting Sri Lankan agriculture through high-fidelity satellite telemetry, AI-driven disaster forecasting, and official government broadcast integration.
           </p>
 
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            {/* We don't have setActivePage passed as a prop from App.jsx easily unless we modify App.jsx. Let's assume the user will use the top navbar, or we can use a standard anchor tag styled as a button if we don't have routing setup yet. Wait, I can pass setActivePage if I edit App.jsx. Or just make it a link to #explore or similar. But wait, in App.jsx:
-                <Dashboard data={dashboardData} history={historyData} onSimulate={handleSimulate} />
-                So setActivePage is NOT passed. Let's just make it a cool decorative button, or I will update App.jsx to pass setActivePage. */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => window.scrollTo({ top: window.innerHeight * 0.8, behavior: 'smooth' })}
-              className="bg-emerald-500 text-white px-8 py-4 rounded-full font-bold text-lg flex items-center gap-2 hover:bg-emerald-400 transition-colors shadow-[0_0_40px_-10px_rgba(16,185,129,0.5)] border border-emerald-400/50"
+          {/* Disaster Readiness Level (DRL) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[40px] text-left relative group hover:border-emerald-500/50 transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Readiness Level</p>
+                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+              </div>
+              <p className="text-4xl font-black text-white mb-2">OPERATIONAL</p>
+              <p className="text-xs text-slate-500 font-medium italic">All sensor clusters reporting nominal telemetry.</p>
+            </div>
+
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[40px] text-left relative group hover:border-amber-500/50 transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active Hazards</p>
+                <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+              </div>
+              <p className="text-4xl font-black text-white mb-2">WATCH</p>
+              <p className="text-xs text-slate-500 font-medium italic">Colombo District showing elevated precipitation risk.</p>
+            </div>
+
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[40px] text-left relative group hover:border-rose-500/50 transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Response Time</p>
+                <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+              </div>
+              <p className="text-4xl font-black text-white mb-2">INSTANT</p>
+              <p className="text-xs text-slate-500 font-medium italic">Global emergency satellite relay nodes online.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
+            <button
+              onClick={() => setActivePage("alerts")}
+              className="bg-emerald-500 text-white px-10 py-5 rounded-full font-black text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-emerald-400 transition-all shadow-[0_20px_40px_-10px_rgba(16,185,129,0.4)]"
             >
-              Explore the System <ArrowRight size={20} />
-            </motion.button>
+              Access Alert Center <ShieldCheck size={20} />
+            </button>
+            <button
+              onClick={() => setActivePage("monitoring")}
+              className="bg-white/5 backdrop-blur-md text-white px-10 py-5 rounded-full font-black text-sm uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all"
+            >
+              Analyze Live Telemetry
+            </button>
           </div>
         </motion.div>
-
-
       </section>
 
       {/* 🚀 EXPLANATION SECTION */}

@@ -130,6 +130,39 @@ function generateAlerts(weather, district, farmName) {
   return alerts;
 }
 
+const RESPONSE_PROTOCOLS = {
+  "Flood Warning": [
+    "Activate all perimeter drainage pumps and clear spillways.",
+    "Relocate mobile agricultural machinery to high-elevation zones.",
+    "Secure livestock in designated flood-safe shelters.",
+    "Monitor live water-level telemetry every 30 minutes."
+  ],
+  "Heat Wave Alert": [
+    "Implement high-frequency drip irrigation cycles.",
+    "Apply organic mulch to exposed soil to minimize evaporation.",
+    "Erect temporary shade netting for sensitive seedlings.",
+    "Hydrate livestock and monitor for heat stress symptoms."
+  ],
+  "Storm Warning": [
+    "Reinforce greenhouse structures and polytunnel anchor points.",
+    "Harvest all mature or near-mature crops immediately.",
+    "Prune overhanging branches near critical infrastructure.",
+    "Secure all loose outdoor equipment and field tools."
+  ],
+  "Pest Risk Advisory": [
+    "Conduct a high-density field inspection for early egg clusters.",
+    "Apply preventative organic pheromone traps across the boundary.",
+    "Optimize canopy ventilation to reduce localized humidity.",
+    "Prepare biocontrol agents for rapid deployment."
+  ],
+  "Government Official Warning": [
+    "Adhere strictly to instructions provided in the official broadcast.",
+    "Contact regional agricultural officers for localized support.",
+    "Monitor emergency radio channels for evacuation orders.",
+    "Coordinate with neighboring farms for community response."
+  ]
+};
+
 export default function Alerts() {
   const [alerts, setAlerts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -544,12 +577,31 @@ export default function Alerts() {
                       <h3 className={`text-2xl font-black ${style.text} mb-3 tracking-tight`}>{notif.type}</h3>
                       <p className="text-slate-700 font-medium text-base leading-relaxed mb-6">{notif.message}</p>
 
-                      <div className="bg-white/80 p-5 rounded-2xl border border-white shadow-sm">
+                      <div className="bg-white/80 p-5 rounded-2xl border border-white shadow-sm mb-6">
                         <div className="flex items-center gap-2 mb-2">
                           <ShieldAlert size={14} className="text-emerald-600" />
-                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Strategic Mitigation</span>
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Primary Directive</span>
                         </div>
                         <p className="text-slate-900 font-bold text-sm leading-relaxed">{notif.action}</p>
+                      </div>
+
+                      {/* Tactical Response Roadmap */}
+                      <div className="mt-8 pt-8 border-t border-slate-100/50">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">
+                            <Zap size={14} />
+                          </div>
+                          <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Tactical Response Roadmap</h4>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {(RESPONSE_PROTOCOLS[notif.type] || RESPONSE_PROTOCOLS[notif.isOfficial ? "Government Official Warning" : "Pest Risk Advisory"]).map((step, idx) => (
+                            <div key={idx} className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-emerald-200 transition-all group">
+                              <div className="text-emerald-500 font-black text-xs pt-0.5">{idx + 1}.</div>
+                              <p className="text-[11px] font-bold text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors">{step}</p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
