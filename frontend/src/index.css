@@ -33,6 +33,40 @@
   }
 }
 
+/* Accessibility Overrides */
+html.high-contrast {
+  --background: #000000;
+  --surface: #111111;
+  --text-main: #ffffff;
+  --text-muted: #cccccc;
+  --border: #444444;
+  --primary: #10b981;
+}
+
+html.enlarge-text {
+  font-size: 115%;
+}
+
+html.color-blind {
+  filter: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="protanopia"><feColorMatrix type="matrix" values="0.567, 0.433, 0, 0, 0, 0.558, 0.442, 0, 0, 0, 0, 0.242, 0.758, 0, 0, 0, 0, 0, 1, 0"/></filter></svg>#protanopia');
+}
+
+html.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+@keyframes critical-flash {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(239, 68, 68, 0.2); }
+}
+
+html.visual-flash.has-critical-alert body {
+  animation: critical-flash 1s infinite;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

@@ -20,14 +20,17 @@ export function ChartCard({ title, subtitle, icon: Icon, children }) {
   );
 }
 
-export function ToggleRow({ label, desc, checked = false }) {
+export function ToggleRow({ label, desc, checked = false, onChange }) {
   return (
     <div className="flex items-center justify-between group">
       <div>
         <p className="font-black text-slate-800 tracking-tight">{label}</p>
         <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">{desc}</p>
       </div>
-      <div className={`w-16 h-9 rounded-full p-1.5 transition-colors cursor-pointer ${checked ? 'bg-emerald-600' : 'bg-slate-200'}`}>
+      <div 
+        onClick={onChange}
+        className={`w-16 h-9 rounded-full p-1.5 transition-colors cursor-pointer ${checked ? 'bg-emerald-600' : 'bg-slate-200'}`}
+      >
         <div className={`w-6 h-6 bg-white rounded-full shadow-lg transition-transform ${checked ? 'translate-x-7' : 'translate-x-0'}`} />
       </div>
     </div>

@@ -89,8 +89,25 @@ function App() {
         axios.get(`${API_BASE}/api/history`),
       ]);
 
+      const newAlerts = Array.isArray(alertsRes.data) ? alertsRes.data : [];
+      
+      // Accessibility Logic: Audio Announcements
+      if (user?.settings?.audioAnnounce) {
+        const criticalNew = newAlerts.filter(a => 
+          a.status?.toLowerCase() === "active" && 
+          a.severity?.toLowerCase() === "critical" &&
+          !alertsData.find(old => old._id === a._id)
+        );
+        if (criticalNew.length > 0) {
+          criticalNew.forEach(alert => {
+            const msg = new SpeechSynthesisUtterance(`Warning. Critical hazard detected: ${alert.type}. ${alert.message}`);
+            window.speechSynthesis.speak(msg);
+          });
+        }
+      }
+
       setDashboardData(dashboardRes.data);
-      setAlertsData(Array.isArray(alertsRes.data) ? alertsRes.data : []);
+      setAlertsData(newAlerts);
       setHistoryData(Array.isArray(historyRes.data) ? historyRes.data : []);
       setError("");
     } catch (err) {
@@ -100,6 +117,33 @@ function App() {
       setLoading(false);
     }
   };
+
+  // Accessibility Logic: Global Class Application
+  useEffect(() => {
+    const root = document.documentElement;
+    const s = user?.settings;
+    if (!s) return;
+
+    if (s.highContrast) root.classList.add("high-contrast");
+    else root.classList.remove("high-contrast");
+    
+    if (s.enlargedText) root.classList.add("enlarge-text");
+    else root.classList.remove("enlarge-text");
+
+    if (s.colorBlind) root.classList.add("color-blind");
+    else root.classList.remove("color-blind");
+
+    if (s.reducedMotion) root.classList.add("reduce-motion");
+    else root.classList.remove("reduce-motion");
+
+    if (s.visualFlash) root.classList.add("visual-flash");
+    else root.classList.remove("visual-flash");
+
+    const hasCritical = alertsData.some(a => a.status?.toLowerCase() === "active" && a.severity?.toLowerCase() === "critical");
+    if (hasCritical) root.classList.add("has-critical-alert");
+    else root.classList.remove("has-critical-alert");
+
+  }, [user?.settings, alertsData]);
 
   const handleSimulate = async () => {
     try {
@@ -218,7 +262,7 @@ function App() {
               {activePage === "alerts" && <Alerts />}
               {activePage === "monitoring" && <Monitoring />}
               {activePage === "farms" && <FarmRegistry key={farmVisitCount} />}
-              {activePage === "settings" && <SettingsPage />}
+              {activePage === "settings" && <SettingsPage user={user} setUser={setUser} />}
               {activePage === "profile" && <Profile user={user} onUserUpdate={handleUserUpdate} />}
               {activePage === "admin" && user?.role === "Admin" && <AdminDashboard currentUser={user} />}
             </motion.div>

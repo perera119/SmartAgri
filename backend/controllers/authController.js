@@ -68,6 +68,7 @@ const loginUser = async (req, res) => {
           lastName: user.lastName,
           phone: user.phone,
           role: user.role,
+          settings: user.settings,
         },
       });
     } else {
@@ -82,7 +83,18 @@ const loginUser = async (req, res) => {
           email: email,
           firstName: 'Sanjula',
           lastName: 'Perera',
-          role: 'Admin'
+          role: 'Admin',
+          settings: {
+            highContrast: false,
+            enlargedText: false,
+            colorBlind: false,
+            reducedMotion: false,
+            screenReader: false,
+            audioAnnounce: true,
+            pushSms: true,
+            visualFlash: false,
+            location: "Central Highlands, Sri Lanka"
+          }
         }
       });
     }
@@ -94,7 +106,7 @@ const loginUser = async (req, res) => {
 // @route   PUT /api/profile
 // @access  Private (identified by email)
 const updateProfile = async (req, res) => {
-  const { email, firstName, lastName, newEmail, phone, password } = req.body;
+  const { email, firstName, lastName, newEmail, phone, password, settings } = req.body;
 
   if (!email) {
     return res.status(400).json({ error: 'Current email is required to identify user' });
@@ -109,6 +121,7 @@ const updateProfile = async (req, res) => {
     if (newEmail)   user.email     = newEmail;
     if (phone !== undefined) user.phone = phone;
     if (password)   user.password  = password; // will be hashed by pre-save hook
+    if (settings)   user.settings  = settings;
 
     await user.save();
 
@@ -120,6 +133,7 @@ const updateProfile = async (req, res) => {
         lastName:  user.lastName,
         phone:     user.phone,
         role:      user.role,
+        settings:  user.settings,
       }
     });
   } catch (error) {

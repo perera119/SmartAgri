@@ -9,6 +9,20 @@ const userSchema = mongoose.Schema(
     phone: { type: String, default: '' },
     password: { type: String, required: true },
     role: { type: String, enum: ['User', 'Admin'], default: 'User' },
+    settings: {
+      type: Object,
+      default: {
+        highContrast: false,
+        enlargedText: false,
+        colorBlind: false,
+        reducedMotion: false,
+        screenReader: false,
+        audioAnnounce: true,
+        pushSms: true,
+        visualFlash: false,
+        location: "Central Highlands, Sri Lanka"
+      }
+    },
   },
   { timestamps: true }
 );
