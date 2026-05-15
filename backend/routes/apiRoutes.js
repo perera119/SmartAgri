@@ -9,6 +9,8 @@ const {
   getHistory, 
   addSensorData, 
   seedData,
+  getPredictions,
+  predict,
   getSriLankaFarms
 } = require('../controllers/apiController');
 
@@ -31,6 +33,8 @@ router.post('/admin/broadcast', createOfficialAlert);
 
 // Data routes
 router.get('/dashboard', getDashboard);
+router.get('/predictions', getPredictions);
+router.get('/predict', predict);
 router.get('/alerts', getAlerts);
 router.get('/history', getHistory);
 router.post('/sensors', addSensorData);

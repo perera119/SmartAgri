@@ -18,6 +18,7 @@ import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Alerts from "./pages/Alerts";
 import Monitoring from "./pages/Monitoring";
+import Predictions from "./pages/Predictions";
 import SettingsPage from "./pages/Settings";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -68,17 +69,19 @@ function App() {
   // Role-based Navigation
   const menuItems = user?.role === "Admin"
     ? [
-        { key: "admin",      label: "Admin Panel",    icon: Settings },
-        { key: "dashboard",  label: "Home",           icon: LayoutDashboard },
-        { key: "alerts",     label: "Alerts",         icon: Bell            },
-        { key: "monitoring", label: "Monitoring",     icon: Activity        },
-        { key: "farms",      label: "Geospatial Map", icon: Globe           }
+        { key: "admin",       label: "Admin Panel",    icon: Settings },
+        { key: "dashboard",   label: "Home",           icon: LayoutDashboard },
+        { key: "alerts",      label: "Alerts",         icon: Bell            },
+        { key: "predictions", label: "Predictions",    icon: BrainCircuit    },
+        { key: "monitoring",  label: "Monitoring",     icon: Activity        },
+        { key: "farms",       label: "Geospatial Map", icon: Globe           }
       ]
     : [
-        { key: "dashboard",  label: "Home",           icon: LayoutDashboard },
-        { key: "alerts",     label: "Alerts",         icon: Bell            },
-        { key: "monitoring", label: "Monitoring",     icon: Activity        },
-        { key: "farms",      label: "Farm Map",       icon: Globe           },
+        { key: "dashboard",   label: "Home",           icon: LayoutDashboard },
+        { key: "alerts",      label: "Alerts",         icon: Bell            },
+        { key: "predictions", label: "Predictions",    icon: BrainCircuit    },
+        { key: "monitoring",  label: "Monitoring",     icon: Activity        },
+        { key: "farms",       label: "Farm Map",       icon: Globe           },
       ];
 
   const fetchData = async () => {
@@ -261,6 +264,7 @@ function App() {
               )}
               {activePage === "alerts" && <Alerts />}
               {activePage === "monitoring" && <Monitoring />}
+              {activePage === "predictions" && <Predictions />}
               {activePage === "farms" && <FarmRegistry key={farmVisitCount} />}
               {activePage === "settings" && <SettingsPage user={user} setUser={setUser} />}
               {activePage === "profile" && <Profile user={user} onUserUpdate={handleUserUpdate} />}
