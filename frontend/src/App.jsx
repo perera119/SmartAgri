@@ -29,9 +29,12 @@ import FarmRegistry from "./pages/FarmRegistry";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 
+import { useLanguage } from "./context/LanguageContext";
+
 const API_BASE = "http://127.0.0.1:5001";
 
 function App() {
+  const { t } = useLanguage();
   const [activePage, setActivePage] = useState("dashboard");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
