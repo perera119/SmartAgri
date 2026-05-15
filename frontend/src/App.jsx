@@ -3,11 +3,9 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, 
-  BrainCircuit, 
   Bell, 
   Settings, 
   Activity, 
-  Calendar,
   AlertTriangle,
   X,
   Globe
@@ -16,10 +14,8 @@ import {
 // Components
 import Navbar from "./components/Navbar";
 
-
 // Pages
 import Dashboard from "./pages/Dashboard";
-import Predictions from "./pages/Predictions";
 import Alerts from "./pages/Alerts";
 import Monitoring from "./pages/Monitoring";
 import SettingsPage from "./pages/Settings";
@@ -64,7 +60,6 @@ function App() {
   };
   const [farmVisitCount, setFarmVisitCount] = useState(0);
   const [dashboardData, setDashboardData] = useState(null);
-  const [predictionData, setPredictionData] = useState(null);
   const [alertsData, setAlertsData] = useState([]);
   const [historyData, setHistoryData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,7 +74,6 @@ function App() {
       ]
     : [
         { key: "dashboard",  label: "Home",           icon: LayoutDashboard },
-        { key: "predictions",label: "Predictions",    icon: BrainCircuit    },
         { key: "alerts",     label: "Alerts",         icon: Bell            },
         { key: "monitoring", label: "Monitoring",     icon: Activity        },
         { key: "farms",      label: "Farm Map",       icon: Globe           },
@@ -87,15 +81,13 @@ function App() {
 
   const fetchData = async () => {
     try {
-      const [dashboardRes, predictionRes, alertsRes, historyRes] = await Promise.all([
+      const [dashboardRes, alertsRes, historyRes] = await Promise.all([
         axios.get(`${API_BASE}/api/dashboard`),
-        axios.get(`${API_BASE}/api/predictions`),
         axios.get(`${API_BASE}/api/alerts`),
         axios.get(`${API_BASE}/api/history`),
       ]);
 
       setDashboardData(dashboardRes.data);
-      setPredictionData(predictionRes.data);
       setAlertsData(Array.isArray(alertsRes.data) ? alertsRes.data : []);
       setHistoryData(Array.isArray(historyRes.data) ? historyRes.data : []);
       setError("");
@@ -147,7 +139,7 @@ function App() {
           className="flex flex-col items-center gap-4"
         >
           <img src="/logo.png" alt="AgriWatch" className="w-32 h-32 object-contain" />
-          <h2 className="text-2xl font-black text-emerald-900 font-display">AgriWatch AI</h2>
+          <h2 className="text-2xl font-black text-emerald-900 font-display">AgriWatch</h2>
           <div className="w-48 h-1.5 bg-slate-200 rounded-full overflow-hidden">
             <motion.div 
               animate={{ x: [-200, 200] }}
@@ -221,7 +213,6 @@ function App() {
                   onSimulate={handleSimulate} 
                 />
               )}
-              {activePage === "predictions" && <Predictions />}
               {activePage === "alerts" && <Alerts />}
               {activePage === "monitoring" && <Monitoring />}
               {activePage === "farms" && <FarmRegistry key={farmVisitCount} />}

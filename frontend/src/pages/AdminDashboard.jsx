@@ -27,7 +27,7 @@ import {
 import SRI_LANKA_LOCATIONS from "../data/sriLankaLocations";
 
 const API = "http://127.0.0.1:5001";
-const AI_BASE = "http://127.0.0.1:8000";
+const API = "http://127.0.0.1:5001";
 
 // ── Stat Card Component ───────────────────────────────────────────────────────
 const StatCard = ({ label, value, icon: Icon, color, trend }) => (
@@ -69,7 +69,6 @@ export default function AdminDashboard({ currentUser }) {
   const [broadcastRegion,  setBroadcastRegion]  = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
   const [broadcasting,      setBroadcasting]      = useState(false);
-  const [generatingAi,      setGeneratingAi]      = useState(false);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
@@ -150,26 +149,6 @@ export default function AdminDashboard({ currentUser }) {
       showToast("Node dismantled and removed from grid.");
     } catch { showToast("Decommissioning failed."); }
     finally { setDeleteFarmId(null); }
-  };
-
-  const handleAiGenerate = async () => {
-    if (!broadcastMessage) {
-      showToast("Enter a keyword (e.g. flood) first.");
-      return;
-    }
-    setGeneratingAi(true);
-    try {
-      const res = await axios.post(`${AI_BASE}/api/ai/generate-broadcast`, {
-        keyword: broadcastMessage,
-        region: broadcastRegion || "National"
-      });
-      setBroadcastMessage(res.data.message);
-      showToast("AI intelligence synthesized.");
-    } catch {
-      showToast("AI synthesis failed.");
-    } finally {
-      setGeneratingAi(false);
-    }
   };
 
   const handleBroadcast = async () => {
@@ -334,7 +313,7 @@ export default function AdminDashboard({ currentUser }) {
         {/* Right Column: High-End Widgets */}
         <div className="space-y-8">
           
-          {/* Neural Health Terminal */}
+          {/* System Integrity Terminal */}
           <div className="bg-slate-900 rounded-[48px] p-10 text-white shadow-2xl relative overflow-hidden">
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-8">
@@ -342,16 +321,16 @@ export default function AdminDashboard({ currentUser }) {
                   <Cpu size={20} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-emerald-500/60 uppercase tracking-[0.2em]">Neural Engine</p>
+                  <p className="text-[10px] font-black text-emerald-500/60 uppercase tracking-[0.2em]">Operational Status</p>
                   <h4 className="text-lg font-black">System Integrity</h4>
                 </div>
               </div>
 
               <div className="space-y-6">
                 {[
-                  { label: "AI Microservice", status: "Active", icon: Activity, color: "text-emerald-400" },
-                  { label: "Neural Predictions", status: "Nominal", icon: Globe, color: "text-blue-400" },
-                  { label: "Satellite Sync", status: "Live", icon: Navigation, color: "text-amber-400" },
+                  { label: "Regional Sensors", status: "Active", icon: Activity, color: "text-emerald-400" },
+                  { label: "Telemetry Relay", status: "Nominal", icon: Globe, color: "text-blue-400" },
+                  { icon: Navigation, label: "Satellite Sync", status: "Live", color: "text-amber-400" },
                   { label: "Mainframe DB", status: "Encrypted", icon: Database, color: "text-rose-400" }
                 ].map((s) => (
                   <div key={s.label} className="flex items-center justify-between group">
@@ -378,7 +357,7 @@ export default function AdminDashboard({ currentUser }) {
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px]"></div>
           </div>
 
-          {/* Broadcast Intelligence */}
+          {/* Broadcast Interface */}
           <div className="bg-white rounded-[48px] border border-slate-100 p-10 shadow-sm">
             <div className="flex items-center gap-3 mb-8">
               <div className="w-10 h-10 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-600">
@@ -411,17 +390,9 @@ export default function AdminDashboard({ currentUser }) {
                 <textarea 
                   value={broadcastMessage}
                   onChange={(e) => setBroadcastMessage(e.target.value)}
-                  placeholder="Type a keyword (e.g. flood) or compose manually..."
+                  placeholder="Compose manual alert message..."
                   className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold text-slate-900 outline-none h-32 focus:border-emerald-500 transition-all pr-12"
                 />
-                <button 
-                  onClick={handleAiGenerate}
-                  disabled={generatingAi}
-                  className="absolute right-4 top-4 p-2 bg-emerald-100 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all disabled:opacity-50"
-                  title="Generate with AI"
-                >
-                  <Sparkles size={16} className={generatingAi ? "animate-pulse" : ""} />
-                </button>
               </div>
               <button 
                 onClick={handleBroadcast}

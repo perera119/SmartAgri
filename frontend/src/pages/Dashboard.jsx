@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Activity, Globe, BrainCircuit, ShieldCheck, ChevronRight } from 'lucide-react';
-import ChatAssistant from '../components/ChatAssistant';
+import { ArrowRight, Activity, Globe, ShieldCheck, ChevronRight, Zap } from 'lucide-react';
 
 const Dashboard = ({ setActivePage, data }) => {
   return (
@@ -41,7 +40,7 @@ const Dashboard = ({ setActivePage, data }) => {
           </h1>
           
           <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto font-medium mb-12 leading-relaxed">
-            Protecting Sri Lankan agriculture through high-fidelity satellite telemetry, AI-driven disaster forecasting, and official government broadcast integration.
+            Protecting Sri Lankan agriculture through high-fidelity satellite telemetry, advanced sensor forecasting, and official government broadcast integration.
           </p>
 
           {/* Disaster Readiness Level (DRL) */}
@@ -112,7 +111,7 @@ const Dashboard = ({ setActivePage, data }) => {
               
               <div className="space-y-6">
                 {[
-                  { icon: BrainCircuit, title: "AI-Powered Predictions", desc: "Machine learning algorithms forecast disease risks and yield outcomes." },
+                  { icon: Zap, title: "Tactical Response Maps", desc: "Digital mitigation roadmaps for immediate field intervention." },
                   { icon: Globe, title: "Live Geospatial Mapping", desc: "Monitor your entire farm registry with real-time meteorological overlays." },
                   { icon: Activity, title: "Continuous Monitoring", desc: "Track crucial metrics 24/7 with automated alerts for critical thresholds." }
                 ].map((feature, idx) => (
@@ -177,7 +176,7 @@ const Dashboard = ({ setActivePage, data }) => {
                 <span className="text-2xl font-black text-white tracking-tight">AgriWatch</span>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-                Empowering modern farmers with AI-driven insights, live geospatial telemetry, and enterprise-grade analytics. Built for the future of food security.
+                Empowering modern farmers with advanced insights, live geospatial telemetry, and enterprise-grade analytics. Built for the future of food security.
               </p>
             </div>
             
@@ -185,7 +184,6 @@ const Dashboard = ({ setActivePage, data }) => {
               <h4 className="text-white font-bold mb-6 tracking-wide">Platform</h4>
               <ul className="space-y-4">
                 <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Dashboard</a></li>
-                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Predictions</a></li>
                 <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Live Monitoring</a></li>
                 <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Farm Map</a></li>
               </ul>
@@ -217,9 +215,6 @@ const Dashboard = ({ setActivePage, data }) => {
           </div>
         </div>
       </footer>
-
-      {/* 🤖 AI CHAT ASSISTANT (Final Year Project Feature) */}
-      <ChatAssistant farmData={data} />
     </div>
   );
 };

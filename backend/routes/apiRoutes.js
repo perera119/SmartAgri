@@ -9,10 +9,7 @@ const {
   getHistory, 
   addSensorData, 
   seedData,
-  getPredictions,
-  predict,
-  getSriLankaFarms,
-  handleChat
+  getSriLankaFarms
 } = require('../controllers/apiController');
 
 // Auth routes
@@ -34,13 +31,10 @@ router.post('/admin/broadcast', createOfficialAlert);
 
 // Data routes
 router.get('/dashboard', getDashboard);
-router.get('/predictions', getPredictions);
-router.get('/predict', predict);
 router.get('/alerts', getAlerts);
 router.get('/history', getHistory);
 router.post('/sensors', addSensorData);
 router.get('/seed', seedData); // Added GET for easy testing via browser
 router.get('/farms/sri-lanka', getSriLankaFarms);
-router.post('/chat', handleChat);
 
 module.exports = router;
