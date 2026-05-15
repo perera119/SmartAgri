@@ -513,6 +513,8 @@ export default function AdminDashboard({ currentUser }) {
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
+
       {/* Edit Farm Modal */}
       <AnimatePresence>
         {showEditFarm && (
