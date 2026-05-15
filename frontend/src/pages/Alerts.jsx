@@ -406,22 +406,34 @@ export default function Alerts() {
         </div>
       )}
 
-      {/* Filter Tabs */}
+      {/* Filter Tabs & Clear All */}
       {!isLoading && alerts.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab)}
-              className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
-                filter === tab
-                  ? "bg-slate-900 text-white shadow-xl shadow-slate-200"
-                  : "bg-slate-50 text-slate-500 hover:bg-slate-100"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-wrap gap-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setFilter(tab)}
+                className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
+                  filter === tab
+                    ? "bg-slate-900 text-white shadow-xl shadow-slate-200"
+                    : "bg-slate-50 text-slate-500 hover:bg-slate-100"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => {
+              const allIds = alerts.map(a => a.id);
+              setAcknowledged(prev => [...new Set([...prev, ...allIds])]);
+            }}
+            className="px-6 py-2.5 bg-rose-50 text-rose-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-rose-100 hover:bg-rose-600 hover:text-white transition-all self-start sm:self-auto"
+          >
+            Clear All Alerts
+          </button>
         </div>
       )}
 
