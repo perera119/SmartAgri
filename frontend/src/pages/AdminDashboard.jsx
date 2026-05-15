@@ -27,7 +27,6 @@ import {
 import SRI_LANKA_LOCATIONS from "../data/sriLankaLocations";
 
 const API = "http://127.0.0.1:5001";
-const API = "http://127.0.0.1:5001";
 
 // ── Stat Card Component ───────────────────────────────────────────────────────
 const StatCard = ({ label, value, icon: Icon, color, trend }) => (
