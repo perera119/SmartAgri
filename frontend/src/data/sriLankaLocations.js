@@ -1,0 +1,30 @@
+// Sri Lanka Districts → Cities/Towns mapping for farm registration
+const SRI_LANKA_LOCATIONS = {
+  "Colombo": ["Colombo", "Dehiwala", "Moratuwa", "Kotte", "Nugegoda", "Maharagama", "Piliyandala", "Kaduwela", "Homagama", "Avissawella"],
+  "Gampaha": ["Gampaha", "Negombo", "Ja-Ela", "Wattala", "Kadawatha", "Kelaniya", "Minuwangoda", "Divulapitiya", "Mirigama", "Nittambuwa"],
+  "Kalutara": ["Kalutara", "Panadura", "Horana", "Beruwala", "Bandaragama", "Matugama", "Ingiriya", "Dodangoda", "Bulathsinhala", "Agalawatta"],
+  "Kandy": ["Kandy", "Peradeniya", "Katugastota", "Gampola", "Nawalapitiya", "Wattegama", "Kadugannawa", "Kundasale", "Akurana", "Teldeniya"],
+  "Matale": ["Matale", "Dambulla", "Sigiriya", "Naula", "Galewela", "Ukuwela", "Rattota", "Palapathwela", "Yatawatta", "Laggala"],
+  "Nuwara Eliya": ["Nuwara Eliya", "Hatton", "Talawakele", "Nanu Oya", "Kotagala", "Ginigathena", "Ragala", "Maskeliya", "Lindula", "Ambewela"],
+  "Galle": ["Galle", "Hikkaduwa", "Ambalangoda", "Karapitiya", "Elpitiya", "Baddegama", "Imaduwa", "Yakkalamulla", "Neluwa", "Habaraduwa"],
+  "Matara": ["Matara", "Weligama", "Dickwella", "Deniyaya", "Kamburupitiya", "Hakmana", "Akuressa", "Malimbada", "Pitabeddara", "Devinuwara"],
+  "Hambantota": ["Hambantota", "Tangalle", "Tissamaharama", "Ambalantota", "Beliatta", "Weeraketiya", "Lunugamvehera", "Kataragama", "Suriyawewa", "Okewela"],
+  "Jaffna": ["Jaffna", "Chavakachcheri", "Point Pedro", "Nallur", "Kopay", "Tellippalai", "Karainagar", "Chankanai", "Sandilipay", "Uduvil"],
+  "Kilinochchi": ["Kilinochchi", "Pallai", "Paranthan", "Poonakary", "Karachchi", "Kandavalai"],
+  "Mannar": ["Mannar", "Nanattan", "Talaimannar", "Pesalai", "Madhu", "Adampan"],
+  "Mullaitivu": ["Mullaitivu", "Puthukudiyiruppu", "Oddusuddan", "Thunukkai", "Maritimepattu"],
+  "Vavuniya": ["Vavuniya", "Nedunkeni", "Cheddikulam", "Omanthai", "Puliyankulam"],
+  "Trincomalee": ["Trincomalee", "Kinniya", "Kantale", "Muttur", "China Bay", "Morawewa", "Gomarankadawala", "Seruvila"],
+  "Batticaloa": ["Batticaloa", "Kattankudy", "Eravur", "Valaichchenai", "Kaluwanchikudy", "Oddamavadi", "Manmunai"],
+  "Ampara": ["Ampara", "Kalmunai", "Akkaraipattu", "Sammanthurai", "Pottuvil", "Dehiattakandiya", "Sainthamaruthu", "Uhana", "Padiyathalawa"],
+  "Kurunegala": ["Kurunegala", "Kuliyapitiya", "Pannala", "Narammala", "Maho", "Nikaweratiya", "Wariyapola", "Polgahawela", "Giriulla", "Ibbagamuwa"],
+  "Puttalam": ["Puttalam", "Chilaw", "Wennappuwa", "Marawila", "Nattandiya", "Dankotuwa", "Anamaduwa", "Mundel", "Kalpitiya"],
+  "Anuradhapura": ["Anuradhapura", "Kekirawa", "Medawachchiya", "Mihintale", "Tambuttegama", "Nochchiyagama", "Eppawala", "Galenbindunuwewa", "Kahatagasdigiliya"],
+  "Polonnaruwa": ["Polonnaruwa", "Kaduruwela", "Hingurakgoda", "Medirigiriya", "Minneriya", "Welikanda", "Dimbulagala", "Lankapura"],
+  "Badulla": ["Badulla", "Bandarawela", "Haputale", "Welimada", "Ella", "Passara", "Mahiyanganaya", "Hali-Ela", "Diyatalawa", "Kandaketiya"],
+  "Monaragala": ["Monaragala", "Wellawaya", "Bibile", "Buttala", "Kataragama", "Thanamalvila", "Medagama", "Siyambalanduwa"],
+  "Ratnapura": ["Ratnapura", "Embilipitiya", "Balangoda", "Pelmadulla", "Eheliyagoda", "Kuruwita", "Godakawela", "Kalawana", "Nivithigala"],
+  "Kegalle": ["Kegalle", "Mawanella", "Rambukkana", "Warakapola", "Ruwanwella", "Deraniyagala", "Aranayake", "Yatiyantota", "Galigamuwa"],
+};
+
+export default SRI_LANKA_LOCATIONS;

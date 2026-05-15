@@ -1,4 +1,5 @@
 const Farm = require('../models/Farm');
+const Alert = require('../models/Alert');
 
 // GET /api/admin/farms
 const getAllFarms = async (req, res) => {
@@ -35,4 +36,30 @@ const deleteFarm = async (req, res) => {
   }
 };
 
-module.exports = { getAllFarms, addFarm, deleteFarm };
+// POST /api/admin/broadcast
+const createOfficialAlert = async (req, res) => {
+  const { region, message, severity, type } = req.body;
+  
+  if (!message || !region) {
+    return res.status(400).json({ error: 'Message and region are required' });
+  }
+
+  try {
+    const alert = await Alert.create({
+      type: type || "Government Official Warning",
+      severity: severity || "High",
+      message,
+      recommendedAction: "Follow official instructions provided in the message.",
+      region,
+      isOfficial: true,
+      status: "active",
+      time: "Just Now",
+      createdAt: new Date().toISOString()
+    });
+    res.status(201).json({ message: 'Official broadcast transmitted', alert });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { getAllFarms, addFarm, deleteFarm, createOfficialAlert };

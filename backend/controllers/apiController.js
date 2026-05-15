@@ -20,18 +20,18 @@ const getDashboard = async (req, res) => {
           rainfall: 12.4
         },
         prediction: {
-          droughtRisk: 65,
-          floodRisk: 10,
+          droughtRisk: 10,
+          floodRisk: 65,
           pestRisk: 15,
-          overallStatus: "warning",
-          recommendation: "Mock recommendation: Start irrigation.",
-          prediction: "Irrigation Needed"
+          overallStatus: "critical",
+          recommendation: "Activate drainage systems.",
+          prediction: "Flood Warning"
         }
       });
     }
 
     const prediction = await generatePrediction(latest);
-    const farmStatus = latest.soilMoisture < 45 ? "Low soil moisture detected" : "All conditions normal";
+    const farmStatus = latest.rainfall > 50 ? "Heavy rainfall detected (Flood Risk)" : "All conditions normal";
 
     res.json({
       lastUpdated: latest.timestamp,
@@ -56,10 +56,10 @@ const getAlerts = async (req, res) => {
     const alerts = await Alert.find().sort({ createdAt: -1 });
     if (alerts.length === 0) {
        return res.json([{
-          type: "Mock Drought Risk",
-          severity: "Medium",
-          message: "Soil moisture level is low (Mock).",
-          recommendedAction: "Start irrigation.",
+          type: "Flood Risk Detected",
+          severity: "Critical",
+          message: "Excessive rainfall and poor field drainage detected. Imminent risk of crop flooding.",
+          recommendedAction: "Activate drainage pumps immediately and evacuate equipment from low-lying areas.",
           status: "active",
           time: "Just now",
           createdAt: new Date().toISOString()
@@ -116,12 +116,12 @@ const addSensorData = async (req, res) => {
 
     const prediction = await generatePrediction(sensorDoc);
 
-    if (prediction.droughtRisk >= 60) {
+    if (prediction.floodRisk >= 60) {
       await Alert.create({
-        type: "Drought Risk",
-        severity: "Medium",
-        message: "Soil moisture level has dropped below 45%.",
-        recommendedAction: "Start irrigation within 48 hours.",
+        type: "Flood Risk Detected",
+        severity: "Critical",
+        message: "Excessive rainfall and poor field drainage detected.",
+        recommendedAction: "Activate drainage pumps immediately.",
         status: "active",
         time: "Just now",
         createdAt: timestamp
@@ -210,4 +210,118 @@ const getSriLankaFarms = async (req, res) => {
   }
 };
 
-module.exports = { getDashboard, getAlerts, getHistory, addSensorData, seedData, getPredictions, predict, getSriLankaFarms };
+// @desc    Handle AI Chat Assistant (Multi-Provider with failover)
+// @route   POST /api/chat
+const handleChat = async (req, res) => {
+  try {
+    const { message, farmData } = req.body;
+    if (!message) return res.status(400).json({ error: "Message is required." });
+
+    // 1. COLLECT ALL AVAILABLE KEYS
+    const geminiKeys = [
+      process.env.GEMINI_API_KEY,
+      process.env.GEMINI_API_KEY_BACKUP
+    ].filter(k => k && k !== "your_gemini_api_key_here");
+
+    const openaiKey = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "your_openai_api_key_here" 
+      ? process.env.OPENAI_API_KEY : null;
+
+    // Build common farm context
+    let farmContext = "";
+    if (farmData && Object.keys(farmData).length > 0) {
+      const m = farmData.metrics || farmData;
+      const p = farmData.prediction || farmData;
+      farmContext = `\n\nCurrent farm sensor data:\n` +
+        `- Temperature: ${m.temperature ?? "N/A"}°C\n` +
+        `- Humidity: ${m.humidity ?? "N/A"}%\n` +
+        `- Soil Moisture: ${m.soilMoisture ?? "N/A"}%\n` +
+        `- Rainfall: ${m.rainfall ?? "N/A"}mm\n` +
+        `- Drought Risk: ${p.droughtRisk ?? "N/A"}%\n` +
+        `- Flood Risk: ${p.floodRisk ?? "N/A"}%\n` +
+        `- Pest Risk: ${p.pestRisk ?? "N/A"}%\n` +
+        `- Location: ${farmData.location || farmData.district || "Sri Lanka"}\n`;
+    }
+
+    const systemPrompt =
+      `You are AgriGuide AI, a smart farming assistant for a Smart Agricultural Disaster Early Warning System in Sri Lanka. ` +
+      `Help users understand farm sensor readings, disaster risks, alerts, and recommended actions. ` +
+      `Use simple, clear, practical language suitable for farmers. ` +
+      `Base your answers on the provided farm data when available. ` +
+      `Explain drought, flood, pest, rainfall, temperature, humidity, and soil moisture risks clearly. ` +
+      `Always remind users that this is a prototype advisory system and critical decisions should be confirmed with an agricultural officer.` +
+      farmContext +
+      `\n\nUser: ${message}`;
+
+    // ── TRY PROVIDER 1: GEMINI ───────────────────────────────────────────────
+    if (geminiKeys.length > 0) {
+      const { GoogleGenerativeAI } = require("@google/generative-ai");
+      for (const key of geminiKeys) {
+        try {
+          const genAI = new GoogleGenerativeAI(key);
+          const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+          const result = await model.generateContent(systemPrompt);
+          const text = (await result.response).text();
+          if (text) {
+            console.log("Response generated via Gemini");
+            return res.json({ reply: text });
+          }
+        } catch (err) {
+          console.warn("Gemini attempt failed:", err.message);
+        }
+      }
+    }
+
+    // ── TRY PROVIDER 2: OPENAI (Failover) ──────────────────────────────────
+    if (openaiKey) {
+      try {
+        const OpenAI = require("openai");
+        const openai = new OpenAI({ apiKey: openaiKey });
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o-mini", // Very fast and cheap
+          messages: [{ role: "system", content: systemPrompt }],
+          max_tokens: 300,
+        });
+        const text = completion.choices[0]?.message?.content;
+        if (text) {
+          console.log("Response generated via OpenAI (Backup)");
+          return res.json({ reply: text });
+        }
+      } catch (err) {
+        console.warn("OpenAI attempt failed:", err.message);
+      }
+    }
+
+    // ── TRY PROVIDER 3: SMART LOGIC (Last Resort Fallback) ──────────────────
+    console.log("All AI Providers failed. Using Smart Fallback Logic...");
+    
+    const m = farmData?.metrics || farmData || {};
+    const p = farmData?.prediction || farmData || {};
+    const temp = m.temperature || 28;
+    const humidity = m.humidity || 75;
+    const rain = m.rainfall || 0;
+    const dRisk = p.droughtRisk || 0;
+    const fRisk = p.floodRisk || 0;
+    const pRisk = p.pestRisk || 0;
+
+    let fallbackReply = `⚠️ **Note:** I am currently running in *Smart Offline Mode* because both Gemini and OpenAI are busy, but I can still help! \n\n`;
+    
+    if (fRisk > 50 || rain > 20) {
+      fallbackReply += `🌊 **Flood Alert:** High flood risk of ${fRisk}% in your area. With rainfall at ${rain}mm, please check your drainage channels immediately.`;
+    } else if (dRisk > 50 || temp > 35) {
+      fallbackReply += `🔥 **Drought Alert:** High heat (${temp}°C) and drought risk (${dRisk}%). We recommend increasing irrigation cycles today.`;
+    } else if (pRisk > 50 || humidity > 85) {
+      fallbackReply += `🐛 **Pest Alert:** High humidity (${humidity}%) increases pest risk to ${pRisk}%. Inspect your crops for early signs of infestation.`;
+    } else {
+      fallbackReply += `✅ **Farm Status:** Conditions are stable (${temp}°C, ${humidity}% humidity). No immediate disaster risks detected.`;
+    }
+
+    fallbackReply += `\n\n*Please confirm critical decisions with an agricultural officer.*`;
+    return res.json({ reply: fallbackReply });
+
+  } catch (error) {
+    console.error("Chat Controller Error:", error.message);
+    res.json({ reply: "AgriGuide AI is temporarily unavailable. Please try again later." });
+  }
+};
+
+module.exports = { getDashboard, getAlerts, getHistory, addSensorData, seedData, getPredictions, predict, getSriLankaFarms, handleChat };

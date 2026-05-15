@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { registerUser, loginUser, updateProfile } = require('../controllers/authController');
 const { getAllUsers, updateUserRole, deleteUser, getSystemStats } = require('../controllers/adminController');
-const { getAllFarms, addFarm, deleteFarm } = require('../controllers/farmAdminController');
+const { getAllFarms, addFarm, deleteFarm, createOfficialAlert } = require('../controllers/farmAdminController');
 const { 
   getDashboard, 
   getAlerts, 
@@ -11,7 +11,8 @@ const {
   seedData,
   getPredictions,
   predict,
-  getSriLankaFarms
+  getSriLankaFarms,
+  handleChat
 } = require('../controllers/apiController');
 
 // Auth routes
@@ -29,6 +30,7 @@ router.get('/admin/stats', getSystemStats);
 router.get('/admin/farms', getAllFarms);
 router.post('/admin/farms', addFarm);
 router.delete('/admin/farms/:id', deleteFarm);
+router.post('/admin/broadcast', createOfficialAlert);
 
 // Data routes
 router.get('/dashboard', getDashboard);
@@ -39,5 +41,6 @@ router.get('/history', getHistory);
 router.post('/sensors', addSensorData);
 router.get('/seed', seedData); // Added GET for easy testing via browser
 router.get('/farms/sri-lanka', getSriLankaFarms);
+router.post('/chat', handleChat);
 
 module.exports = router;

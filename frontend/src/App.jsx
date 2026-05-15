@@ -15,7 +15,7 @@ import {
 
 // Components
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+
 
 // Pages
 import Dashboard from "./pages/Dashboard";
@@ -40,14 +40,17 @@ function App() {
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const parsed = JSON.parse(savedUser);
+      setUser(parsed);
       setIsLoggedIn(true);
+      if (parsed.role === "Admin") setActivePage("admin");
     }
   }, []);
 
   const handleLogin = (userData) => {
     setUser(userData);
     setIsLoggedIn(true);
+    setActivePage(userData.role === "Admin" ? "admin" : "dashboard");
   };
 
   const handleLogout = () => {
@@ -67,16 +70,20 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const menuItems = [
-    { key: "dashboard",  label: "Dashboard",   icon: LayoutDashboard },
-    { key: "predictions",label: "Predictions", icon: BrainCircuit    },
-    { key: "alerts",     label: "Alerts",      icon: Bell            },
-    { key: "monitoring", label: "Monitoring",  icon: Activity        },
-    { key: "farms",      label: "SL Farm Map", icon: Globe           },
-    ...(user?.role === "Admin"
-      ? [{ key: "admin", label: "Admin", icon: Settings }]
-      : []),
-  ];
+  // Role-based Navigation
+  const menuItems = user?.role === "Admin"
+    ? [
+        { key: "admin",      label: "Admin Panel",    icon: Settings },
+        { key: "farms",      label: "Geospatial Map", icon: Globe },
+        { key: "dashboard",  label: "System Status",  icon: LayoutDashboard }
+      ]
+    : [
+        { key: "dashboard",  label: "Home",           icon: LayoutDashboard },
+        { key: "predictions",label: "Predictions",    icon: BrainCircuit    },
+        { key: "alerts",     label: "Alerts",         icon: Bell            },
+        { key: "monitoring", label: "Monitoring",     icon: Activity        },
+        { key: "farms",      label: "Farm Map",       icon: Globe           },
+      ];
 
   const fetchData = async () => {
     try {
@@ -176,10 +183,11 @@ function App() {
         menuItems={menuItems} 
         setIsLoggedIn={handleLogout} 
         user={user}
+        alertsData={alertsData}
       />
 
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-[1600px] mx-auto p-10 pt-6">
+        <div className={activePage === "dashboard" ? "" : "max-w-[1600px] mx-auto p-10 pt-6"}>
           {error && (
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
@@ -214,7 +222,7 @@ function App() {
                 />
               )}
               {activePage === "predictions" && <Predictions />}
-              {activePage === "alerts" && <Alerts data={alertsData} />}
+              {activePage === "alerts" && <Alerts />}
               {activePage === "monitoring" && <Monitoring />}
               {activePage === "farms" && <FarmRegistry key={farmVisitCount} />}
               {activePage === "settings" && <SettingsPage />}
@@ -224,8 +232,6 @@ function App() {
           </AnimatePresence>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

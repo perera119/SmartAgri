@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from services.prediction import calculate_risks
+from services.prediction import calculate_risks, generate_broadcast_message
 
 app = Flask(__name__)
 # Enable CORS so the Node.js backend or React frontend can call this service
@@ -23,6 +23,22 @@ def predict():
         
         return jsonify(result), 200
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/ai/generate-broadcast', methods=['POST'])
+def generate_broadcast():
+    try:
+        data = request.get_json()
+        keyword = data.get('keyword', '')
+        region = data.get('region', 'National')
+        
+        if not keyword:
+            return jsonify({"error": "Keyword required"}), 400
+            
+        message = generate_broadcast_message(keyword, region)
+        return jsonify({"message": message}), 200
+        
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

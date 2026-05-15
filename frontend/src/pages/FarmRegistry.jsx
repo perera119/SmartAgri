@@ -245,7 +245,7 @@ export default function FarmRegistry() {
       <div className="flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
           <span className="text-emerald-600 font-black text-xs uppercase tracking-[0.4em] mb-3 block">Geospatial Registry</span>
-          <h2 className="text-6xl font-black text-slate-900 font-display tracking-tight leading-none">SL Farm Map</h2>
+          <h2 className="text-6xl font-black text-slate-900 font-display tracking-tight leading-none">Farm Map</h2>
         </div>
         <div className="flex gap-4">
           {/* Farm Count */}

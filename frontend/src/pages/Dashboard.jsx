@@ -1,198 +1,191 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { 
-  Thermometer, 
-  Droplets, 
-  Sprout, 
-  CloudRain, 
-  Activity, 
-  MapPin,
-  BrainCircuit,
-  Zap
-} from "lucide-react";
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer, 
-  AreaChart, 
-  Area 
-} from "recharts";
-import { ChartCard, DataNode } from "../components/UIHelpers";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { ArrowRight, Activity, Globe, BrainCircuit, ShieldCheck, ChevronRight } from 'lucide-react';
+import ChatAssistant from '../components/ChatAssistant';
 
-export default function Dashboard({ data, history, onSimulate }) {
-  const [isSimulating, setIsSimulating] = useState(false);
-
-  const handleSimulateClick = async () => {
-    setIsSimulating(true);
-    await onSimulate();
-    setTimeout(() => setIsSimulating(false), 1000);
-  };
-
-  const metrics = [
-    { title: "Temperature", value: data?.metrics?.temperature, unit: "°C", icon: Thermometer, color: "orange", trend: "+2.1%" },
-    { title: "Humidity", value: data?.metrics?.humidity, unit: "%", icon: Droplets, color: "blue", trend: "-1.2%" },
-    { title: "Soil Moisture", value: data?.metrics?.soilMoisture, unit: "%", icon: Sprout, color: "emerald", trend: "-0.5%" },
-    { title: "Rainfall", value: data?.metrics?.rainfall, unit: "mm", icon: CloudRain, color: "indigo", trend: "0.0%" },
-  ];
-
+const Dashboard = ({ setActivePage, data }) => {
   return (
-    <div className="space-y-12">
-      {/* High-End Page Header */}
-      <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-4">
-        <div>
-          <span className="text-emerald-600 font-black text-xs uppercase tracking-[0.4em] mb-3 block">System Intelligence</span>
-          <h2 className="text-6xl font-black text-slate-900 font-display tracking-tight leading-none">Operational Status</h2>
-        </div>
-        <div className="bg-white px-8 py-5 rounded-[32px] border border-slate-200/60 shadow-sm flex items-center gap-6">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Cluster</span>
-            <span className="text-lg font-black text-slate-800">Field-Omega-01</span>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-            <MapPin size={24} />
-          </div>
-        </div>
-      </div>
-
-      {/* Luxury Status Banner */}
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-slate-900 p-1 rounded-[44px] shadow-2xl shadow-slate-900/20 overflow-hidden relative"
+    <div className="w-full min-h-screen bg-slate-50 flex flex-col font-sans">
+      
+      {/* 🌟 HERO SECTION */}
+      <section 
+        className="relative pt-32 pb-48 px-6 lg:px-20 flex flex-col items-center justify-center text-center min-h-[85vh] md:min-h-[95vh] border-b border-slate-800"
+        style={{
+          backgroundImage: 'linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.95)), url("/hero.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
       >
-        <div className="bg-gradient-to-br from-emerald-600 to-emerald-900 p-12 rounded-[40px] relative overflow-hidden">
-          <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-5xl font-black text-white mb-6 font-display leading-tight">Farm Health <br/>Real-Time Summary</h2>
-              <p className="text-2xl text-emerald-50/70 font-medium leading-relaxed mb-10">
-                {data?.farmStatus || "Syncing sensor data from the field..."}
-              </p>
-              <div className="flex flex-wrap gap-6">
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleSimulateClick}
-                  disabled={isSimulating}
-                  className="bg-white text-emerald-900 px-8 py-4 rounded-2xl font-black shadow-xl flex items-center gap-3 transition-all disabled:opacity-50"
-                >
-                  <Zap size={20} className={isSimulating ? "animate-pulse" : ""} />
-                  {isSimulating ? "SIMULATING..." : "SIMULATE SENSOR DATA"}
-                </motion.button>
-                <button className="bg-emerald-500/20 text-white border border-white/20 backdrop-blur-xl px-8 py-4 rounded-2xl font-black hover:bg-emerald-500/30 transition-all">Deep Diagnostics</button>
-              </div>
-            </div>
-            <div className="hidden lg:flex justify-center">
-               <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 60, ease: "linear" }}
-                className="w-80 h-80 border-4 border-white/10 rounded-full flex items-center justify-center relative"
-               >
-                  <div className="w-60 h-60 border-2 border-emerald-400/30 rounded-full flex items-center justify-center">
-                    <Activity size={100} className="text-white opacity-40" />
-                  </div>
-                  <DataNode angle={0} label="AI Active" />
-                  <DataNode angle={120} label="Sensors Up" />
-                  <DataNode angle={240} label="Network Secure" />
-               </motion.div>
-            </div>
+        {/* Background glow effects over the image */}
+        <div className="absolute inset-0 bg-slate-900/40 pointer-events-none"></div>
+        <div className="absolute top-[-10%] left-[20%] w-[600px] h-[600px] bg-emerald-500/20 rounded-full blur-[120px] -z-0 pointer-events-none mix-blend-screen"></div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="max-w-4xl mx-auto z-10"
+        >
+          <span className="inline-block py-1.5 px-4 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black tracking-widest uppercase mb-6">
+            The Future of Agriculture
+          </span>
+          <h1 className="text-6xl md:text-8xl font-black text-white tracking-tight leading-[1.05] mb-8 font-display">
+            Precision Intelligence for <span className="text-emerald-400 drop-shadow-lg">Smart Farming</span>
+          </h1>
+          <p className="text-lg md:text-xl text-slate-200 max-w-2xl mx-auto font-medium mb-10 leading-relaxed drop-shadow-md">
+            Harness the power of AI, real-time meteorological data, and geospatial analytics to maximize crop yield, monitor field health, and prevent risks before they happen.
+          </p>
+
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+            {/* We don't have setActivePage passed as a prop from App.jsx easily unless we modify App.jsx. Let's assume the user will use the top navbar, or we can use a standard anchor tag styled as a button if we don't have routing setup yet. Wait, I can pass setActivePage if I edit App.jsx. Or just make it a link to #explore or similar. But wait, in App.jsx:
+                <Dashboard data={dashboardData} history={historyData} onSimulate={handleSimulate} />
+                So setActivePage is NOT passed. Let's just make it a cool decorative button, or I will update App.jsx to pass setActivePage. */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => window.scrollTo({ top: window.innerHeight * 0.8, behavior: 'smooth' })}
+              className="bg-emerald-500 text-white px-8 py-4 rounded-full font-bold text-lg flex items-center gap-2 hover:bg-emerald-400 transition-colors shadow-[0_0_40px_-10px_rgba(16,185,129,0.5)] border border-emerald-400/50"
+            >
+              Explore the System <ArrowRight size={20} />
+            </motion.button>
           </div>
-          <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none">
-             <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-emerald-400 rounded-full blur-[150px]"></div>
-             <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-teal-400 rounded-full blur-[100px]"></div>
+        </motion.div>
+
+
+      </section>
+
+      {/* 🚀 EXPLANATION SECTION */}
+      <section className="py-24 px-6 lg:px-20 bg-white relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            
+            {/* Text Side */}
+            <motion.div 
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8 }}
+            >
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6 leading-tight font-display">
+                Data-driven agriculture, <br/><span className="text-emerald-600">reimagined.</span>
+              </h2>
+              <p className="text-lg text-slate-600 mb-8 leading-relaxed">
+                AgriWatch brings enterprise-grade intelligence to your fingertips. Stop guessing and start knowing exactly what your crops need, exactly when they need it.
+              </p>
+              
+              <div className="space-y-6">
+                {[
+                  { icon: BrainCircuit, title: "AI-Powered Predictions", desc: "Machine learning algorithms forecast disease risks and yield outcomes." },
+                  { icon: Globe, title: "Live Geospatial Mapping", desc: "Monitor your entire farm registry with real-time meteorological overlays." },
+                  { icon: Activity, title: "Continuous Monitoring", desc: "Track crucial metrics 24/7 with automated alerts for critical thresholds." }
+                ].map((feature, idx) => (
+                  <div key={idx} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                      <feature.icon size={24} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold text-slate-900 mb-1">{feature.title}</h4>
+                      <p className="text-slate-500 text-sm leading-relaxed">{feature.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Image Side */}
+            <motion.div 
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8 }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-emerald-400/20 to-blue-400/20 rounded-[3rem] blur-3xl transform rotate-3"></div>
+              <img 
+                src="/drone.png" 
+                alt="Drone scanning agricultural field" 
+                className="relative rounded-[3rem] shadow-2xl w-full object-cover aspect-square border border-white/50"
+              />
+              
+              {/* Floating Stat Card */}
+              <motion.div 
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -bottom-8 -left-8 bg-white p-6 rounded-3xl shadow-xl border border-slate-100 flex items-center gap-4"
+              >
+                <div className="w-14 h-14 rounded-full bg-emerald-500 flex items-center justify-center text-white">
+                  <ShieldCheck size={28} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">System Status</p>
+                  <p className="text-2xl font-black text-slate-900">100% Secure</p>
+                </div>
+              </motion.div>
+            </motion.div>
+
           </div>
         </div>
-      </motion.div>
+      </section>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {metrics.map((m, i) => (
-          <motion.div
-            key={m.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            whileHover={{ y: -10, transition: { duration: 0.2 } }}
-            className="bg-white p-10 rounded-[40px] shadow-sm border border-slate-100 group relative overflow-hidden transition-all hover:shadow-2xl hover:shadow-slate-200/50"
-          >
-            <div className={`w-16 h-16 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center mb-8 transition-all group-hover:bg-emerald-600 group-hover:text-white group-hover:scale-110 group-hover:rotate-6`}>
-              <m.icon size={32} />
-            </div>
-            <h3 className="text-slate-400 font-black tracking-widest uppercase text-[10px] mb-2">{m.title}</h3>
-            <div className="flex items-baseline gap-2">
-              <span className="text-5xl font-black text-slate-900 font-display tracking-tighter">{m.value ?? "--"}</span>
-              <span className="text-xl font-bold text-slate-400">{m.unit}</span>
-            </div>
-            <div className="mt-8 flex items-center justify-between">
-              <span className={`text-xs font-black px-3 py-1 rounded-full ${m.trend.startsWith('+') ? 'bg-emerald-50 text-emerald-600' : m.trend.startsWith('-') ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-400'}`}>
-                {m.trend}
-              </span>
-              <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">60m Trend</span>
-            </div>
-          </motion.div>
-        ))}
-      </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
-        <ChartCard title="Atmospheric Trends" subtitle="Hyper-local temperature variance" icon={Thermometer}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={history}>
-              <defs>
-                <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#065f46" />
-                  <stop offset="100%" stopColor="#10b981" />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 700}} dy={15} />
-              <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 700}} dx={-15} />
-              <Tooltip 
-                contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '20px' }}
-                cursor={{ stroke: '#e2e8f0', strokeWidth: 2 }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="temperature" 
-                stroke="url(#lineGradient)" 
-                strokeWidth={6} 
-                dot={{ r: 6, fill: '#fff', stroke: '#065f46', strokeWidth: 3 }}
-                activeDot={{ r: 10, strokeWidth: 0, fill: '#10b981' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartCard>
+      {/* 📜 LUXURY FOOTER */}
+      <footer className="bg-slate-950 pt-20 pb-10 px-6 lg:px-20 border-t border-slate-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white">
+                  <Globe size={24} />
+                </div>
+                <span className="text-2xl font-black text-white tracking-tight">AgriWatch</span>
+              </div>
+              <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
+                Empowering modern farmers with AI-driven insights, live geospatial telemetry, and enterprise-grade analytics. Built for the future of food security.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-white font-bold mb-6 tracking-wide">Platform</h4>
+              <ul className="space-y-4">
+                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Dashboard</a></li>
+                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Predictions</a></li>
+                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Live Monitoring</a></li>
+                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Farm Map</a></li>
+              </ul>
+            </div>
 
-        <ChartCard title="Hydration Analysis" subtitle="Soil moisture saturation levels" icon={Droplets}>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={history}>
-              <defs>
-                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 700}} dy={15} />
-              <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 700}} dx={-15} />
-              <Tooltip 
-                contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '20px' }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="soilMoisture" 
-                stroke="#10b981" 
-                strokeWidth={5} 
-                fillOpacity={1} 
-                fill="url(#areaGradient)" 
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </ChartCard>
-      </div>
+            <div>
+              <h4 className="text-white font-bold mb-6 tracking-wide">Company</h4>
+              <ul className="space-y-4">
+                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">About Us</a></li>
+                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Security</a></li>
+                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Terms of Service</a></li>
+                <li><a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm font-medium">Privacy Policy</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-slate-500 text-xs font-medium">
+              &copy; {new Date().getFullYear()} AgriWatch Precision Systems. All rights reserved.
+            </p>
+            <div className="flex gap-6">
+              <a href="#" className="text-slate-500 hover:text-emerald-400 transition-colors"><span className="sr-only">Twitter</span>
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"/></svg>
+              </a>
+              <a href="#" className="text-slate-500 hover:text-emerald-400 transition-colors"><span className="sr-only">GitHub</span>
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* 🤖 AI CHAT ASSISTANT (Final Year Project Feature) */}
+      <ChatAssistant farmData={data} />
     </div>
   );
-}
+};
+
+export default Dashboard;

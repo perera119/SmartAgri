@@ -6,27 +6,71 @@ import {
   ResponsiveContainer, Cell, RadarChart, Radar, PolarGrid,
   PolarAngleAxis, PolarRadiusAxis, LineChart, Line, Legend, ReferenceLine
 } from "recharts";
+import {
+  Thermometer,
+  CloudRain,
+  Bug,
+  Zap,
+  Loader2,
+  AlertTriangle,
+  Info,
+  ChevronDown,
+  Droplets,
+  Wind,
+  MapPin,
+  ShieldAlert
+} from "lucide-react";
 
 const API_BASE = "http://127.0.0.1:5001";
 const AI_BASE  = "http://127.0.0.1:8000";
 const POLL_MS  = 3600000; // 1 hour
 
 // ── Risk helpers ──────────────────────────────────────────────────────────────
+const riskToNum = { Low: 15, Medium: 46, High: 80 };
+
 const riskMeta = (v) => {
   if (v >= 60) return { label:"High",   color:"#ef4444", bg:"bg-rose-50",    text:"text-rose-600",    border:"border-rose-200",   track:"bg-rose-200"   };
   if (v >= 30) return { label:"Medium", color:"#f59e0b", bg:"bg-amber-50",   text:"text-amber-600",   border:"border-amber-200",  track:"bg-amber-200"  };
   return             { label:"Low",    color:"#10b981", bg:"bg-emerald-50",  text:"text-emerald-600", border:"border-emerald-200", track:"bg-emerald-200" };
 };
-const riskToNum = { Low: 15, Medium: 46, High: 80 };
 
-// ── Real live sensor from Open-Meteo (free, no API key) ───────────────────────
-async function fetchLiveSensor() {
+// Sri Lanka district coordinates for weather lookups
+const SRI_LANKA_DISTRICTS = {
+  "Colombo":       { lat: 6.9271, lon: 79.8612 },
+  "Gampaha":       { lat: 7.0840, lon: 80.0098 },
+  "Kalutara":      { lat: 6.5854, lon: 80.1144 },
+  "Kandy":         { lat: 7.2906, lon: 80.6337 },
+  "Matale":        { lat: 7.4675, lon: 80.6234 },
+  "Nuwara Eliya":  { lat: 6.9497, lon: 80.7891 },
+  "Galle":         { lat: 6.0535, lon: 80.2210 },
+  "Matara":        { lat: 5.9485, lon: 80.5353 },
+  "Hambantota":    { lat: 6.1429, lon: 81.1212 },
+  "Jaffna":        { lat: 9.6615, lon: 80.0255 },
+  "Kilinochchi":   { lat: 9.3803, lon: 80.3770 },
+  "Mannar":        { lat: 8.9810, lon: 79.9044 },
+  "Mullaitivu":    { lat: 9.2671, lon: 80.8142 },
+  "Vavuniya":      { lat: 8.7514, lon: 80.4971 },
+  "Trincomalee":   { lat: 8.5874, lon: 81.2152 },
+  "Batticaloa":    { lat: 7.7310, lon: 81.6747 },
+  "Ampara":        { lat: 7.2978, lon: 81.6720 },
+  "Kurunegala":    { lat: 7.4867, lon: 80.3647 },
+  "Puttalam":      { lat: 8.0362, lon: 79.8283 },
+  "Anuradhapura":  { lat: 8.3114, lon: 80.4037 },
+  "Polonnaruwa":   { lat: 7.9403, lon: 81.0188 },
+  "Badulla":       { lat: 6.9934, lon: 81.0550 },
+  "Monaragala":    { lat: 6.8728, lon: 81.3507 },
+  "Ratnapura":     { lat: 6.6828, lon: 80.3992 },
+  "Kegalle":       { lat: 7.2513, lon: 80.3464 },
+};
+
+// ── Real live sensor from Open-Meteo ───────────────────────
+async function fetchLiveSensor(lat = 7.8731, lon = 80.7718, districtName = "Sri Lanka") {
   try {
     const url =
-      "https://api.open-meteo.com/v1/forecast" +
-      "?latitude=7.8731&longitude=80.7718" +
-      "&current=temperature_2m,relative_humidity_2m,precipitation,soil_moisture_0_to_1cm" +
-      "&timezone=Asia%2FColombo";
+      `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${lat}&longitude=${lon}` +
+      `&current=temperature_2m,relative_humidity_2m,precipitation,soil_moisture_0_to_1cm` +
+      `&timezone=Asia%2FColombo`;
     const res = await axios.get(url, { timeout: 8000 });
     const c   = res.data.current;
     return {
@@ -34,7 +78,7 @@ async function fetchLiveSensor() {
       humidity:     Math.round(c.relative_humidity_2m),
       soilMoisture: Math.min(100, Math.round(c.soil_moisture_0_to_1cm * 200)),
       rainfall:     Math.min(150, Math.round(c.precipitation * 10) / 10),
-      source:       "Open-Meteo · Sri Lanka Live",
+      source:       `Open-Meteo · ${districtName} Live`,
     };
   } catch {
     return { temperature: 29, humidity: 78, soilMoisture: 45, rainfall: 12, source: "Fallback data" };
@@ -43,6 +87,7 @@ async function fetchLiveSensor() {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function Predictions() {
+  const [selectedDistrict, setSelectedDistrict] = useState("Colombo");
   const [sensor,      setSensor]      = useState({ temperature:"-", humidity:"-", soilMoisture:"-", rainfall:"-", source:"" });
   const [result,      setResult]      = useState(null);
   const [history,     setHistory]     = useState([]);
@@ -79,34 +124,43 @@ export default function Predictions() {
 
   // ── Polling loop ────────────────────────────────────────────────────────────
   const refresh = async () => {
-    const newSensor = await fetchLiveSensor();
-    setSensor(newSensor);
-    const pred = await fetchPrediction(newSensor);
-    setResult(pred);
-    setLastUpdated(new Date());
-    setLoading(false);
-    setTick(t => t + 1);
-    const d = riskToNum[pred?.droughtRisk] ?? 15;
-    const f = riskToNum[pred?.floodRisk]   ?? 15;
-    const p = riskToNum[pred?.pestRisk]    ?? 15;
-    setHistory(prev => {
-      const now   = new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
-      const entry = { time: now, Drought: d, Flood: f, Pest: p };
-      const upd   = [...prev, entry];
-      return upd.length > 20 ? upd.slice(upd.length - 20) : upd;
-    });
+    try {
+      const coords = SRI_LANKA_DISTRICTS[selectedDistrict] || { lat: 7.8731, lon: 80.7718 };
+      const newSensor = await fetchLiveSensor(coords.lat, coords.lon, selectedDistrict);
+      setSensor(newSensor);
+      const pred = await fetchPrediction(newSensor);
+      setResult(pred);
+      setLastUpdated(new Date());
+      setTick(t => t + 1);
+      
+      const d = pred?.probabilities?.drought ?? (riskToNum[pred?.droughtRisk] || 15);
+      const f = pred?.probabilities?.flood   ?? (riskToNum[pred?.floodRisk]   || 15);
+      const p = pred?.probabilities?.pest    ?? (riskToNum[pred?.pestRisk]    || 15);
+
+      setHistory(prev => {
+        const now   = new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+        const entry = { time: now, Drought: d, Flood: f, Pest: p };
+        const upd   = [...prev, entry];
+        return upd.length > 20 ? upd.slice(upd.length - 20) : upd;
+      });
+    } catch (err) {
+      console.error("Refresh failed:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     refresh();
     intervalRef.current = setInterval(refresh, POLL_MS);
     return () => clearInterval(intervalRef.current);
-  }, []);
+  }, [selectedDistrict]);
 
   // ── Derived values ──────────────────────────────────────────────────────────
-  const drought = riskToNum[result?.droughtRisk] ?? 15;
-  const flood   = riskToNum[result?.floodRisk]   ?? 15;
-  const pest    = riskToNum[result?.pestRisk]     ?? 15;
+  const drought = result?.probabilities?.drought ?? (riskToNum[result?.droughtRisk] || 15);
+  const flood   = result?.probabilities?.flood   ?? (riskToNum[result?.floodRisk]   || 15);
+  const pest    = result?.probabilities?.pest    ?? (riskToNum[result?.pestRisk]    || 15);
+  
   const dm = riskMeta(drought);
   const fm = riskMeta(flood);
   const pm = riskMeta(pest);
@@ -130,17 +184,17 @@ export default function Predictions() {
   const risks = [
     {
       label:"Drought Risk", value: drought, meta: dm,
-      sensor: `Temp ${sensor.temperature}°C · Moisture ${sensor.soilMoisture}%`,
-      desc: drought >= 60 ? "Critical soil deficit. Irrigation required immediately."
-           : drought >= 30 ? "Moderate dryness. Schedule irrigation within 48 hours."
-           : "Soil moisture is within safe range. No action needed.",
+      sensor: `Temperature ${sensor.temperature}°C · Humidity ${sensor.humidity}%`,
+      desc: drought >= 60 ? "Critical heat stress. Significant irrigation required immediately."
+           : drought >= 30 ? "Elevated temperatures. Monitor crop hydration levels."
+           : "Temperature and humidity are within safe farming range.",
     },
     {
       label:"Flood Risk", value: flood, meta: fm,
-      sensor: `Rainfall ${sensor.rainfall}mm · Moisture ${sensor.soilMoisture}%`,
-      desc: flood >= 60 ? "High accumulation. Check drainage channels urgently."
-           : flood >= 30 ? "Elevated levels. Monitor field drainage closely."
-           : "Drainage conditions are stable. No flood risk.",
+      sensor: `Rainfall ${sensor.rainfall}mm · Humidity ${sensor.humidity}%`,
+      desc: flood >= 60 ? "Heavy rain accumulation. Check drainage channels urgently."
+           : flood >= 30 ? "Moderate rainfall. Monitor field drainage closely."
+           : "Rainfall conditions are stable. No flood risk.",
     },
     {
       label:"Pest Risk", value: pest, meta: pm,
@@ -164,22 +218,41 @@ export default function Predictions() {
     <div className="space-y-8">
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-        <div>
-          <span className="text-emerald-600 font-black text-xs uppercase tracking-[0.4em] mb-3 block">Predictive Modeling</span>
-          <h2 className="text-6xl font-black text-slate-900 font-display tracking-tight leading-none">Risk Forecasting</h2>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 border-b border-slate-100 pb-8">
+        <div className="flex-1">
+          <span className="text-rose-600 font-black text-[10px] uppercase tracking-[0.3em] mb-3 block">Predictive Modeling</span>
+          <h2 className="text-4xl md:text-6xl font-black text-slate-900 font-display tracking-tight leading-none mb-4">Risk Forecasting</h2>
+          <p className="text-slate-500 font-medium max-w-2xl text-lg">AI-powered disaster detection utilizing live meteorological telemetry and multi-spectral analysis.</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="bg-white rounded-[28px] border border-slate-200 px-6 py-3 flex items-center gap-3 shadow-sm">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-            </span>
-            <span className="text-xs font-black text-slate-700 uppercase tracking-widest">Live · refreshing every 1 hour</span>
-          </div>
-          <div className={`px-6 py-3 rounded-[28px] border ${om.border} ${om.bg}`}>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Overall</p>
-            <p className={`text-base font-black ${om.text}`}>{overall}% — {om.label}</p>
+
+        <div className="w-full lg:w-auto space-y-4">
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="relative">
+              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600" size={16} />
+              <select
+                value={selectedDistrict}
+                onChange={(e) => {
+                  setLoading(true);
+                  setSelectedDistrict(e.target.value);
+                }}
+                className="w-full sm:w-[260px] bg-white border border-slate-200 rounded-2xl py-4 pl-11 pr-10 font-bold text-slate-900 text-sm focus:border-emerald-500 outline-none appearance-none cursor-pointer shadow-sm transition-all"
+              >
+                {Object.keys(SRI_LANKA_DISTRICTS).map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+            </div>
+
+            <div className={`px-6 py-4 rounded-2xl border ${om.border} ${om.bg} flex items-center gap-4`}>
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Aggregate Risk</p>
+                <p className={`text-xl font-black ${om.text}`}>{overall}% — {om.label}</p>
+              </div>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${om.bg} border ${om.border}`}>
+                <ShieldAlert size={20} className={om.text} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -211,141 +284,209 @@ export default function Predictions() {
         )}
       </div>
 
-      {/* Risk Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {risks.map((r) => (
-          <motion.div
-            key={`${r.label}-${tick}`}
-            initial={{ opacity: 0.5, scale: 0.98 }}
-            animate={{ opacity: 1,   scale: 1    }}
-            transition={{ duration: 0.3 }}
-            className={`bg-white rounded-[40px] border ${r.meta.border} p-8 shadow-sm`}
-          >
-            <div className="flex justify-between items-start mb-5">
-              <p className="text-xs font-black text-slate-500 uppercase tracking-widest">{r.label}</p>
-              <span className={`text-[10px] font-black px-3 py-1 rounded-full ${r.meta.bg} ${r.meta.text} uppercase tracking-widest`}>
-                {r.meta.label}
-              </span>
-            </div>
-            <p className={`text-5xl font-black mb-4 ${r.meta.text}`}>{r.value}%</p>
-            <div className={`h-2 ${r.meta.track} rounded-full overflow-hidden mb-4`}>
-              <motion.div
-                animate={{ width: `${r.value}%` }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                className="h-full rounded-full"
-                style={{ backgroundColor: r.meta.color }}
-              />
-            </div>
-            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">{r.sensor}</p>
-            <p className="text-xs text-slate-500 font-medium leading-relaxed">{r.desc}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* Bar Chart */}
-        <div className="bg-white rounded-[40px] border border-slate-100 p-10 shadow-sm">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Current Reading</p>
-          <h3 className="text-lg font-black text-slate-900 mb-6">Risk Distribution</h3>
-          <div className="h-[260px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barData} margin={{ top:10, right:10, left:-20, bottom:5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize:12, fontWeight:700, fill:'#64748b' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize:11, fill:'#94a3b8' }} domain={[0,100]} />
-                <ReferenceLine y={60} stroke="#ef4444" strokeDasharray="4 4" strokeWidth={1.5} label={{ value:"High", fill:"#ef4444", fontSize:10 }} />
-                <ReferenceLine y={30} stroke="#f59e0b" strokeDasharray="4 4" strokeWidth={1.5} label={{ value:"Med",  fill:"#f59e0b", fontSize:10 }} />
-                <Tooltip
-                  cursor={{ fill:'#f8fafc', radius:12 }}
-                  contentStyle={{ borderRadius:'16px', border:'none', boxShadow:'0 10px 40px rgba(0,0,0,0.1)', padding:'10px 16px' }}
-                  formatter={(v) => [`${v}%`, "Risk"]}
-                />
-                <Bar dataKey="value" radius={[12,12,0,0]} barSize={64}>
-                  {barData.map((e,i) => <Cell key={i} fill={e.color} fillOpacity={0.9} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+      {/* 🚀 Disaster Forecast Terminal */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left: Forecast Cards */}
+        <div className="space-y-6">
+          <div className="mb-4">
+            <span className="text-rose-600 font-black text-[10px] uppercase tracking-[0.3em] mb-2 block">Analytical Intelligence</span>
+            <h3 className="text-3xl font-black text-slate-900 leading-tight">AI Disaster Forecast</h3>
+            <p className="text-slate-400 text-sm font-bold mt-1">Projected risks for the next {result?.predictionWindow || "48-72"} hours</p>
           </div>
+
+          {(result?.forecasts || [
+            { type: "Drought", prob: 0, intensity: "Low" },
+            { type: "Flood", prob: 0, intensity: "Low" },
+            { type: "Pest Outbreak", prob: 0, intensity: "Low" }
+          ]).map((f, i) => (
+            <motion.div
+              key={f.type}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden group"
+            >
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                    f.prob > 70 ? "bg-rose-50 text-rose-600" : f.prob > 30 ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"
+                  }`}>
+                    {f.type === "Drought" ? <Thermometer size={24} /> : f.type === "Flood" ? <CloudRain size={24} /> : <Bug size={24} />}
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-black text-slate-900">{f.type}</h4>
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${
+                      f.prob > 70 ? "text-rose-500" : f.prob > 30 ? "text-amber-500" : "text-emerald-500"
+                    }`}>
+                      {f.intensity} Intensity Expected
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-black text-slate-900">{f.prob}%</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Probability</p>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden relative z-10">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${f.prob}%` }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                  className={`h-full rounded-full ${
+                    f.prob > 70 ? "bg-rose-500" : f.prob > 30 ? "bg-amber-500" : "bg-emerald-500"
+                  }`}
+                />
+              </div>
+
+              {/* Animated Background Pulse for High Risk */}
+              {f.prob > 70 && (
+                <motion.div 
+                  animate={{ opacity: [0, 0.05, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute inset-0 bg-rose-500"
+                />
+              )}
+            </motion.div>
+          ))}
         </div>
 
-        {/* Radar Chart */}
-        <div className="bg-white rounded-[40px] border border-slate-100 p-10 shadow-sm">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Multi-Factor</p>
-          <h3 className="text-lg font-black text-slate-900 mb-6">Crop Health Radar</h3>
-          <div className="h-[260px]">
+        {/* Right: Risk Radar + Summary */}
+        <div className="bg-white rounded-[48px] border border-slate-100 p-10 shadow-sm flex flex-col">
+          <div className="mb-8">
+            <h3 className="text-xl font-black text-slate-900">Threat Vector Analysis</h3>
+            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Multi-dimensional risk mapping</p>
+          </div>
+          
+          <div className="flex-1 min-h-[300px] flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={radarData}>
+              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
                 <PolarGrid stroke="#e2e8f0" />
                 <PolarAngleAxis dataKey="subject" tick={{ fontSize:11, fontWeight:700, fill:'#64748b' }} />
                 <PolarRadiusAxis angle={30} domain={[0,100]} tick={{ fontSize:9, fill:'#94a3b8' }} />
-                <Radar name="Risk Level" dataKey="value" stroke="#059669" fill="#059669" fillOpacity={0.15} strokeWidth={2} />
+                <Radar 
+                  name="Risk Level" 
+                  dataKey="value" 
+                  stroke={overall > 70 ? "#ef4444" : "#10b981"} 
+                  fill={overall > 70 ? "#ef4444" : "#10b981"} 
+                  fillOpacity={0.15} 
+                  strokeWidth={3} 
+                />
               </RadarChart>
             </ResponsiveContainer>
           </div>
-        </div>
-      </div>
 
-      {/* History Trend */}
-      <div className="bg-white rounded-[40px] border border-slate-100 p-10 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Session History</p>
-            <h3 className="text-lg font-black text-slate-900">Risk Trend</h3>
-          </div>
-          <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-2 border border-slate-100">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              {history.length} reading{history.length !== 1 ? "s" : ""} recorded
-            </span>
-          </div>
-        </div>
-        <div className="h-[220px]">
-          {history.length < 2 ? (
-            <div className="h-full flex items-center justify-center text-slate-300 text-sm font-bold">
-              Trend will appear after next refresh
+          <div className={`mt-8 p-6 rounded-3xl border ${
+            overall > 60 ? "bg-rose-50 border-rose-100 text-rose-900" : "bg-emerald-50 border-emerald-100 text-emerald-900"
+          }`}>
+            <div className="flex items-center gap-3 mb-2">
+              <Zap size={16} className={overall > 60 ? "text-rose-600" : "text-emerald-600"} />
+              <span className="text-[10px] font-black uppercase tracking-widest">Strategic Recommendation</span>
             </div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={history} margin={{ top:5, right:20, left:-20, bottom:5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize:9, fill:'#94a3b8' }} interval="preserveStartEnd" />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize:10, fill:'#94a3b8' }} domain={[0,100]} />
-                <Tooltip
-                  contentStyle={{ borderRadius:'14px', border:'none', boxShadow:'0 8px 30px rgba(0,0,0,0.1)', padding:'10px 14px', fontSize:'12px' }}
-                  formatter={(v,n) => [`${v}%`, n]}
-                />
-                <Legend wrapperStyle={{ paddingTop:'16px', fontSize:'11px', fontWeight:'700' }} />
-                <Line type="monotone" dataKey="Drought" stroke="#f59e0b" strokeWidth={2} dot={false} isAnimationActive={false} />
-                <Line type="monotone" dataKey="Flood"   stroke="#3b82f6" strokeWidth={2} dot={false} isAnimationActive={false} />
-                <Line type="monotone" dataKey="Pest"    stroke="#ef4444" strokeWidth={2} dot={false} isAnimationActive={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-
-      {/* Recommendation Banner */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={result?.recommendation}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y:  0 }}
-          exit={{ opacity: 0 }}
-          className={`rounded-[40px] border ${om.border} ${om.bg} p-8 flex items-start gap-5`}
-        >
-          <div className="text-2xl mt-0.5 flex-shrink-0">
-            {overall >= 60 ? "⚠️" : overall >= 30 ? "📋" : "✅"}
-          </div>
-          <div>
-            <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${om.text}`}>AI Recommendation</p>
-            <p className="text-base font-bold text-slate-800 leading-relaxed">
+            <p className="text-sm font-bold leading-relaxed italic">
               {result?.recommendation || "All conditions stable. Continue regular monitoring."}
             </p>
           </div>
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      </div>
+
+
+
+      {/* 📘 Disaster Awareness Section */}
+      <div className="pt-12 border-t border-slate-100">
+        <div className="mb-10">
+          <span className="text-emerald-600 font-black text-xs uppercase tracking-[0.4em] mb-3 block">Educational Insights</span>
+          <h2 className="text-4xl font-black text-slate-900 font-display tracking-tight leading-none">Disaster Awareness</h2>
+          <p className="text-slate-500 mt-4 max-w-2xl font-medium">Understanding the mechanics of agricultural disasters is the first step toward effective mitigation and food security.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Flood Card */}
+          <motion.div 
+            whileHover={{ y: -10 }}
+            className="group bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden flex flex-col"
+          >
+            <div className="h-64 overflow-hidden relative">
+              <img 
+                src="/assets/disasters/flood.png" 
+                alt="Flood Disaster" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+              <div className="absolute bottom-6 left-6">
+                <span className="bg-blue-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Flood Risk</span>
+              </div>
+            </div>
+            <div className="p-8 flex-1">
+              <h4 className="text-xl font-black text-slate-900 mb-4">Hydrological Flooding</h4>
+              <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                Flooding occurs when intense rainfall exceeds the soil's absorption capacity and the local drainage system's limit. In Sri Lanka, this often impacts low-lying paddy fields, causing root rot and total crop loss if water remains stagnant for over 48 hours.
+              </p>
+              <div className="mt-6 pt-6 border-t border-slate-50">
+                <h5 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3">Prevention Tip</h5>
+                <p className="text-[11px] text-slate-400 font-bold italic">Maintain clear drainage channels and consider raised seedbeds in high-risk zones.</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Drought Card */}
+          <motion.div 
+            whileHover={{ y: -10 }}
+            className="group bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden flex flex-col"
+          >
+            <div className="h-64 overflow-hidden relative">
+              <img 
+                src="/assets/disasters/drought.png" 
+                alt="Drought Disaster" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+              <div className="absolute bottom-6 left-6">
+                <span className="bg-amber-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Drought Risk</span>
+              </div>
+            </div>
+            <div className="p-8 flex-1">
+              <h4 className="text-xl font-black text-slate-900 mb-4">Meteorological Drought</h4>
+              <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                Drought is a prolonged period of moisture deficiency. It begins with high temperatures and low rainfall, leading to soil moisture depletion. Crops experience wilting and stunted growth, significantly reducing yield and quality.
+              </p>
+              <div className="mt-6 pt-6 border-t border-slate-50">
+                <h5 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3">Prevention Tip</h5>
+                <p className="text-[11px] text-slate-400 font-bold italic">Implement drip irrigation and mulching to conserve critical soil moisture levels.</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Pest Card */}
+          <motion.div 
+            whileHover={{ y: -10 }}
+            className="group bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden flex flex-col"
+          >
+            <div className="h-64 overflow-hidden relative">
+              <img 
+                src="/assets/disasters/pest.png" 
+                alt="Pest Outbreak" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+              <div className="absolute bottom-6 left-6">
+                <span className="bg-emerald-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Biological Risk</span>
+              </div>
+            </div>
+            <div className="p-8 flex-1">
+              <h4 className="text-xl font-black text-slate-900 mb-4">Pest Outbreaks</h4>
+              <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                High humidity and moderate temperatures often create the perfect environment for rapid pest multiplication. Locusts, caterpillars, and fungal diseases can devastate entire fields in days if not detected in the early 'incubation' phase.
+              </p>
+              <div className="mt-6 pt-6 border-t border-slate-50">
+                <h5 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3">Prevention Tip</h5>
+                <p className="text-[11px] text-slate-400 font-bold italic">Monitor humidity levels daily and use preventive organic biopesticides.</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
 
     </div>
   );

@@ -4,7 +4,7 @@ const User = require('../models/User');
 // @route   POST /api/register
 // @access  Public
 const registerUser = async (req, res) => {
-  const { firstName, lastName, email, password, role } = req.body;
+  const { firstName, lastName, email, phone, password, role } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
@@ -21,6 +21,7 @@ const registerUser = async (req, res) => {
       firstName,
       lastName,
       email,
+      phone: phone || '',
       password,
       role: role || 'User',
     });
@@ -32,6 +33,7 @@ const registerUser = async (req, res) => {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
+          phone: user.phone,
           role: user.role,
         },
       });
@@ -64,6 +66,7 @@ const loginUser = async (req, res) => {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
+          phone: user.phone,
           role: user.role,
         },
       });
@@ -91,7 +94,7 @@ const loginUser = async (req, res) => {
 // @route   PUT /api/profile
 // @access  Private (identified by email)
 const updateProfile = async (req, res) => {
-  const { email, firstName, lastName, newEmail, password } = req.body;
+  const { email, firstName, lastName, newEmail, phone, password } = req.body;
 
   if (!email) {
     return res.status(400).json({ error: 'Current email is required to identify user' });
@@ -104,6 +107,7 @@ const updateProfile = async (req, res) => {
     if (firstName)  user.firstName = firstName;
     if (lastName)   user.lastName  = lastName;
     if (newEmail)   user.email     = newEmail;
+    if (phone !== undefined) user.phone = phone;
     if (password)   user.password  = password; // will be hashed by pre-save hook
 
     await user.save();
@@ -114,6 +118,7 @@ const updateProfile = async (req, res) => {
         email:     user.email,
         firstName: user.firstName,
         lastName:  user.lastName,
+        phone:     user.phone,
         role:      user.role,
       }
     });
