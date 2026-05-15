@@ -18,10 +18,13 @@ import {
   XCircle
 } from "lucide-react";
 
+import { useLanguage } from "../context/LanguageContext";
+
 const API_BASE = "http://127.0.0.1:5001";
 
 
 export default function Navbar({ activePage, setActivePage, menuItems, setIsLoggedIn, user, alertsData }) {
+  const { t } = useLanguage();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
@@ -73,7 +76,7 @@ export default function Navbar({ activePage, setActivePage, menuItems, setIsLogg
 
   const profileMenuItems = [
     {
-      label: "View Profile",
+      label: t('viewProfile'),
       desc: "See your account details",
       icon: UserIcon,
       action: () => { setActivePage("profile"); setIsProfileOpen(false); },
@@ -85,7 +88,7 @@ export default function Navbar({ activePage, setActivePage, menuItems, setIsLogg
       action: () => { setIsEditingPhone(true); setPhoneInput(user?.phone || ""); },
     },
     {
-      label: "Settings",
+      label: t('settings'),
       desc: "Manage your preferences",
       icon: Settings,
       action: () => { setActivePage("settings"); setIsProfileOpen(false); },
@@ -289,7 +292,7 @@ export default function Navbar({ activePage, setActivePage, menuItems, setIsLogg
                         <LogOut size={16} />
                       </div>
                       <div>
-                        <span className="block text-sm font-bold text-red-600">Secure Logout</span>
+                        <span className="block text-sm font-bold text-red-600">{t('logout')}</span>
                         <span className="block text-[11px] text-red-400 font-medium mt-0.5">End your current session</span>
                       </div>
                     </button>

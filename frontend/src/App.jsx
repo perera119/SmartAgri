@@ -73,16 +73,16 @@ function App() {
   // Role-based Navigation
   const menuItems = user?.role === "Admin"
     ? [
-        { key: "admin",      label: "Admin Panel",    icon: Settings },
-        { key: "farms",      label: "Geospatial Map", icon: Globe },
-        { key: "dashboard",  label: "System Status",  icon: LayoutDashboard }
+        { key: "admin",      label: t('settings'),    icon: Settings },
+        { key: "farms",      label: t('farmMap'),     icon: Globe },
+        { key: "dashboard",  label: t('dashboard'),   icon: LayoutDashboard }
       ]
     : [
-        { key: "dashboard",  label: "Home",           icon: LayoutDashboard },
-        { key: "predictions",label: "Predictions",    icon: BrainCircuit    },
-        { key: "alerts",     label: "Alerts",         icon: Bell            },
-        { key: "monitoring", label: "Monitoring",     icon: Activity        },
-        { key: "farms",      label: "Farm Map",       icon: Globe           },
+        { key: "dashboard",  label: t('home'),         icon: LayoutDashboard },
+        { key: "predictions",label: t('predictions'),  icon: BrainCircuit    },
+        { key: "alerts",     label: t('alerts'),       icon: Bell            },
+        { key: "monitoring", label: t('monitoring'),   icon: Activity        },
+        { key: "farms",      label: t('farmMap'),      icon: Globe           },
       ];
 
   const fetchData = async () => {
