@@ -36,6 +36,22 @@ const deleteFarm = async (req, res) => {
   }
 };
 
+// PUT /api/admin/farms/:id
+const updateFarm = async (req, res) => {
+  const { name, district, cropType, lat, lon, areaHa, ownerName, notes } = req.body;
+  try {
+    const farm = await Farm.findByIdAndUpdate(
+      req.params.id,
+      { name, district, cropType, lat, lon, areaHa, ownerName, notes },
+      { new: true, runValidators: true }
+    );
+    if (!farm) return res.status(404).json({ error: 'Farm not found' });
+    res.json({ message: 'Farm updated successfully', farm });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // POST /api/admin/broadcast
 const createOfficialAlert = async (req, res) => {
   const { region, message, severity, type } = req.body;
@@ -62,4 +78,4 @@ const createOfficialAlert = async (req, res) => {
   }
 };
 
-module.exports = { getAllFarms, addFarm, deleteFarm, createOfficialAlert };
+module.exports = { getAllFarms, addFarm, deleteFarm, updateFarm, createOfficialAlert };

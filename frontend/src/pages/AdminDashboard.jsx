@@ -22,7 +22,8 @@ import {
   Building2,
   Database,
   BarChart3,
-  Sparkles
+  Sparkles,
+  Pencil
 } from "lucide-react";
 import SRI_LANKA_LOCATIONS from "../data/sriLankaLocations";
 
@@ -61,6 +62,8 @@ export default function AdminDashboard({ currentUser }) {
   const [deleteFarmId, setDeleteFarmId] = useState(null);
   const [toast,        setToast]        = useState("");
   const [showAddFarm,  setShowAddFarm]  = useState(false);
+  const [showEditFarm, setShowEditFarm] = useState(false);
+  const [editingFarm,  setEditingFarm]  = useState(null);
   const [farmForm,     setFarmForm]     = useState({ name:"", district:"", city:"", cropType:"", areaHa:"", ownerName:"", notes:"" });
   const [addingFarm,   setAddingFarm]   = useState(false);
   const [activeTab,    setActiveTab]    = useState("overview");
@@ -148,6 +151,42 @@ export default function AdminDashboard({ currentUser }) {
       showToast("Node dismantled and removed from grid.");
     } catch { showToast("Decommissioning failed."); }
     finally { setDeleteFarmId(null); }
+  };
+
+  const handleUpdateFarm = async (e) => {
+    e.preventDefault();
+    if (!editingFarm) return;
+    setAddingFarm(true);
+    try {
+      showToast("Updating regional telemetry...");
+      const districtString = farmForm.city ? `${farmForm.district} - ${farmForm.city}` : farmForm.district;
+      await axios.put(`${API}/api/admin/farms/${editingFarm._id}`, {
+        ...farmForm,
+        district: districtString,
+        areaHa: parseFloat(farmForm.areaHa) || 0,
+      });
+      showToast("Regional node synchronized.");
+      setShowEditFarm(false);
+      setEditingFarm(null);
+      setFarmForm({ name:"", district:"", city:"", cropType:"", areaHa:"", ownerName:"", notes:"" });
+      fetchAll();
+    } catch { showToast("Update failed."); }
+    finally { setAddingFarm(false); }
+  };
+
+  const openEditFarm = (f) => {
+    const [district, city] = f.district.split(" - ");
+    setEditingFarm(f);
+    setFarmForm({
+      name: f.name,
+      district: district,
+      city: city || "",
+      cropType: f.cropType,
+      areaHa: f.areaHa,
+      ownerName: f.ownerName || "",
+      notes: f.notes || ""
+    });
+    setShowEditFarm(true);
   };
 
   const handleBroadcast = async () => {
@@ -285,12 +324,20 @@ export default function AdminDashboard({ currentUser }) {
                     <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                       <MapIcon size={20} />
                     </div>
-                    <button 
-                      onClick={() => setDeleteFarmId(f._id)}
-                      className="text-slate-300 hover:text-rose-600 transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => openEditFarm(f)}
+                        className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:bg-emerald-600 hover:text-white transition-all"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button 
+                        onClick={() => setDeleteFarmId(f._id)}
+                        className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:bg-rose-600 hover:text-white transition-all"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                   <h4 className="font-black text-slate-900 mb-1">{f.name}</h4>
                   <p className="text-xs text-slate-400 font-bold mb-4 uppercase tracking-widest">{f.district}</p>
@@ -461,6 +508,62 @@ export default function AdminDashboard({ currentUser }) {
                     {addingFarm ? "Geocoding..." : <><CheckCircle2 size={16} /> Deploy Node</>}
                   </button>
                   <button type="button" onClick={() => setShowAddFarm(false)} className="flex-1 bg-slate-100 text-slate-600 py-5 rounded-[24px] font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">Cancel</button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      {/* Edit Farm Modal */}
+      <AnimatePresence>
+        {showEditFarm && (
+          <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+            className="fixed inset-0 z-[200] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-6"
+            onClick={() => setShowEditFarm(false)}>
+            <motion.div initial={{ scale:0.95, y:20 }} animate={{ scale:1, y:0 }} exit={{ scale:0.95, y:20 }}
+              className="bg-white rounded-[48px] p-12 max-w-2xl w-full shadow-2xl relative overflow-hidden"
+              onClick={e => e.stopPropagation()}>
+              <button onClick={() => setShowEditFarm(false)} className="absolute top-8 right-8 text-slate-400 hover:text-slate-900 transition-colors">
+                <X size={24} />
+              </button>
+              
+              <div className="flex items-center gap-4 mb-10">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <Pencil size={28} />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-black text-slate-900 leading-none">Edit Farm Node</h3>
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2 italic">Modify Telemetry Data</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleUpdateFarm} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Identification</label>
+                    <input type="text" placeholder="Farm Name" required value={farmForm.name} onChange={e => setFarmForm(p=>({...p, name:e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold text-slate-900 outline-none focus:border-emerald-500 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Agriculture Type</label>
+                    <input type="text" placeholder="Crop Type (e.g. Paddy)" required value={farmForm.cropType} onChange={e => setFarmForm(p=>({...p, cropType:e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold text-slate-900 outline-none focus:border-emerald-500 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Area (Ha)</label>
+                    <input type="number" step="0.1" placeholder="Farm Area" value={farmForm.areaHa} onChange={e => setFarmForm(p=>({...p, areaHa:e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold text-slate-900 outline-none focus:border-emerald-500 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Jurisdiction</label>
+                    <select required value={farmForm.district} onChange={e => setFarmForm(p=>({...p, district:e.target.value, city:""}))} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold text-slate-900 outline-none appearance-none cursor-pointer focus:border-emerald-500 transition-all">
+                      <option value="">Select District</option>
+                      {Object.keys(SRI_LANKA_LOCATIONS).map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4 pt-4">
+                  <button type="submit" disabled={addingFarm} className="flex-1 bg-emerald-600 text-white py-5 rounded-[24px] font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 disabled:opacity-60 flex items-center justify-center gap-3">
+                    {addingFarm ? "Synchronizing..." : <><CheckCircle2 size={16} /> Save Changes</>}
+                  </button>
+                  <button type="button" onClick={() => setShowEditFarm(false)} className="flex-1 bg-slate-100 text-slate-600 py-5 rounded-[24px] font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">Cancel</button>
                 </div>
               </form>
             </motion.div>

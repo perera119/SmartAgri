@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { registerUser, loginUser, updateProfile } = require('../controllers/authController');
 const { getAllUsers, updateUserRole, deleteUser, getSystemStats } = require('../controllers/adminController');
-const { getAllFarms, addFarm, deleteFarm, createOfficialAlert } = require('../controllers/farmAdminController');
+const { getAllFarms, addFarm, deleteFarm, updateFarm, createOfficialAlert } = require('../controllers/farmAdminController');
 const { 
   getDashboard, 
   getAlerts, 
@@ -28,6 +28,7 @@ router.get('/admin/stats', getSystemStats);
 // Farm admin routes
 router.get('/admin/farms', getAllFarms);
 router.post('/admin/farms', addFarm);
+router.put('/admin/farms/:id', updateFarm);
 router.delete('/admin/farms/:id', deleteFarm);
 router.post('/admin/broadcast', createOfficialAlert);
 
