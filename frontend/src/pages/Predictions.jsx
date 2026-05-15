@@ -47,24 +47,7 @@ const PredictionCard = ({ title, value, unit, trend, icon: Icon, color, delay })
   </motion.div>
 );
 
-export default function Predictions() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchPredictions = async () => {
-      try {
-        const res = await axios.get(`${API_BASE}/api/predictions`);
-        setData(res.data);
-      } catch (err) {
-        console.error("Prediction sync failed", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPredictions();
-  }, []);
-
+export default function Predictions({ data, loading }) {
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
       <motion.div 

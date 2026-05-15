@@ -64,6 +64,7 @@ function App() {
   const [dashboardData, setDashboardData] = useState(null);
   const [alertsData, setAlertsData] = useState([]);
   const [historyData, setHistoryData] = useState([]);
+  const [predictionsData, setPredictionsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -87,10 +88,11 @@ function App() {
 
   const fetchData = async () => {
     try {
-      const [dashboardRes, alertsRes, historyRes] = await Promise.all([
+      const [dashboardRes, alertsRes, historyRes, predictionsRes] = await Promise.all([
         axios.get(`${API_BASE}/api/dashboard`),
         axios.get(`${API_BASE}/api/alerts`),
         axios.get(`${API_BASE}/api/history`),
+        axios.get(`${API_BASE}/api/predictions`),
       ]);
 
       const newAlerts = Array.isArray(alertsRes.data) ? alertsRes.data : [];
@@ -113,6 +115,7 @@ function App() {
       setDashboardData(dashboardRes.data);
       setAlertsData(newAlerts);
       setHistoryData(Array.isArray(historyRes.data) ? historyRes.data : []);
+      setPredictionsData(predictionsRes.data);
       setError("");
     } catch (err) {
       console.error(err);
@@ -265,7 +268,7 @@ function App() {
               )}
               {activePage === "alerts" && <Alerts />}
               {activePage === "monitoring" && <Monitoring />}
-              {activePage === "predictions" && <Predictions />}
+              {activePage === "predictions" && <Predictions data={predictionsData} loading={loading} />}
               {activePage === "farms" && <FarmRegistry key={farmVisitCount} />}
               {activePage === "settings" && <SettingsPage user={user} setUser={setUser} />}
               {activePage === "profile" && <Profile user={user} onUserUpdate={handleUserUpdate} />}
