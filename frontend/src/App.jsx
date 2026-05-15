@@ -72,10 +72,8 @@ function App() {
   const menuItems = user?.role === "Admin"
     ? [
         { key: "admin",       label: "Admin Panel",    icon: Settings },
-        { key: "dashboard",   label: "Home",           icon: LayoutDashboard },
         { key: "alerts",      label: "Alerts",         icon: Bell            },
         { key: "predictions", label: "Predictions",    icon: BrainCircuit    },
-        { key: "monitoring",  label: "Monitoring",     icon: Activity        },
         { key: "farms",       label: "Geospatial Map", icon: Globe           }
       ]
     : [

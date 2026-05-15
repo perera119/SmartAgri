@@ -106,10 +106,33 @@ export default function Profile({ user, onUserUpdate }) {
               </div>
               <div className="space-y-1 border-t border-slate-100 pt-6">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</p>
-                <span className="inline-block bg-emerald-100 text-emerald-700 text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-widest">
-                  {user?.role}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block bg-emerald-100 text-emerald-700 text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-widest">
+                    {user?.role}
+                  </span>
+                  {user?.role === "Admin" && (
+                    <span className="inline-block bg-slate-900 text-white text-[10px] font-black px-3 py-1 rounded-md uppercase tracking-[0.2em]">
+                       System Clearance Level 1
+                    </span>
+                  )}
+                </div>
               </div>
+
+              {user?.role === "Admin" && (
+                <div className="mt-8 p-6 bg-slate-50 rounded-3xl border border-slate-100 space-y-4">
+                   <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Administrative Oversight</h4>
+                   <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white p-4 rounded-2xl border border-slate-100">
+                         <p className="text-[8px] font-black text-slate-400 uppercase">System Status</p>
+                         <p className="text-sm font-black text-emerald-600">All Nodes Nominal</p>
+                      </div>
+                      <div className="bg-white p-4 rounded-2xl border border-slate-100">
+                         <p className="text-[8px] font-black text-slate-400 uppercase">Alert Authority</p>
+                         <p className="text-sm font-black text-slate-900">Emergency Broadcast</p>
+                      </div>
+                   </div>
+                </div>
+              )}
 
               <div className="border-t border-slate-100 pt-6">
                 <button
