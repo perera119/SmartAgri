@@ -73,7 +73,6 @@ export default function Predictions({ data, loading }) {
              <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic">Live Forecasting Active</span>
           </div>
           <h2 className="text-6xl md:text-8xl font-black text-slate-900 font-display tracking-tighter leading-none">Hazard <br/>Forecasting</h2>
-          <p className="text-slate-500 font-medium max-w-xl text-lg">Predictive environmental intelligence powered by multi-spectral satellite synthesis and regional sensor clusters.</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
