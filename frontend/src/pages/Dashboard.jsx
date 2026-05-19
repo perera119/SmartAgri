@@ -50,7 +50,7 @@ const Dashboard = ({ setActivePage, data }) => {
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Readiness Level</p>
                 <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
               </div>
-              <p className="text-4xl font-black text-white mb-2">OPERATIONAL</p>
+              <p className="text-2xl lg:text-3xl font-black text-white mb-2 tracking-tight">OPERATIONAL</p>
               <p className="text-xs text-slate-500 font-medium italic">All sensor clusters reporting nominal telemetry.</p>
             </div>
 
@@ -59,7 +59,7 @@ const Dashboard = ({ setActivePage, data }) => {
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active Hazards</p>
                 <div className="w-2 h-2 rounded-full bg-amber-500"></div>
               </div>
-              <p className="text-4xl font-black text-white mb-2">WATCH</p>
+              <p className="text-2xl lg:text-3xl font-black text-white mb-2 tracking-tight">WATCH</p>
               <p className="text-xs text-slate-500 font-medium italic">Colombo District showing elevated precipitation risk.</p>
             </div>
 
@@ -68,7 +68,7 @@ const Dashboard = ({ setActivePage, data }) => {
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Response Time</p>
                 <div className="w-2 h-2 rounded-full bg-rose-500"></div>
               </div>
-              <p className="text-4xl font-black text-white mb-2">INSTANT</p>
+              <p className="text-2xl lg:text-3xl font-black text-white mb-2 tracking-tight">INSTANT</p>
               <p className="text-xs text-slate-500 font-medium italic">Global emergency satellite relay nodes online.</p>
             </div>
           </div>
